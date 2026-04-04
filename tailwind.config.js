@@ -10,6 +10,8 @@ module.exports = {
           primaryLight: "#E8DEF8",
           secondary: "#1D1B20",
           foreground: "#625B71",
+          backgroundPrimary: "#FFFFFF",
+          backgroundSecondary: "#EADDFF",
           purple: "#9333ea",
           "purple-dark": "#6b21a8",
           "purple-light": "#c084fc",

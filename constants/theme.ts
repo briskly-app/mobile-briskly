@@ -4,6 +4,8 @@ export const Colors = {
     primaryLight: "#E8DEF8",
     secondary: "#1D1B20",
     foreground: "#625B71",
+    backgroundPrimary: "#FFFFFF",
+    backgroundSecondary: "#EADDFF",
     purple: "#9333ea",
     purpleDark: "#6b21a8",
     purpleLight: "#c084fc",
