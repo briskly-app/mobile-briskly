@@ -1,7 +1,8 @@
-import { Colors } from "@/constants/theme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, TouchableOpacity, View } from "react-native";
+
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 interface Props {
   text: string;
@@ -9,8 +10,10 @@ interface Props {
 }
 
 export default function FooterStickyButton({ text, onPress }: Props) {
+  const { colors } = useAppTheme();
+
   return (
-    <View className="absolute bottom-0 left-0 right-0 h-20 items-center bg-briskly-backgroundSecondary">
+    <View className="absolute bottom-0 left-0 right-0 h-20 items-center bg-briskly-backgroundSecondary dark:bg-briskly-dark-backgroundSecondary">
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.85}
@@ -22,7 +25,7 @@ export default function FooterStickyButton({ text, onPress }: Props) {
         }}
       >
         <LinearGradient
-          colors={[Colors.briskly.purpleDark, Colors.briskly.primary]}
+          colors={[colors.purpleLight, colors.purpleDark]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={{

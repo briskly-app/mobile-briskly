@@ -9,8 +9,12 @@ import { pastTrips, upcomingTrips } from "@/mocks/trip-mocks";
 
 export default function TripsScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-briskly-backgroundPrimary">
-      <Header title="Your trips" onBackPress={() => router.back()} />
+    <SafeAreaView className="flex-1 bg-briskly-backgroundPrimary dark:bg-briskly-dark-backgroundPrimary">
+      <Header
+        title="Your trips"
+        onBackPress={() => router.back()}
+        showThemeToggle
+      />
 
       <ScrollView
         className="flex-1 px-4"

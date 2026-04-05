@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { Text, TouchableOpacity, View } from "react-native";
 
-import { Colors } from "@/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { TripItemType } from "@/types/trip-item-type";
 
 interface Props extends TripItemType {
@@ -9,13 +9,17 @@ interface Props extends TripItemType {
 }
 
 export default function TripCard({ title, dateRange, image, onPress }: Props) {
+  const { colors } = useAppTheme();
+
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.6}
-      className="flex-row items-center bg-briskly-backgroundPrimary rounded-2xl px-4 py-3 mb-3 border border-briskly-primaryLight"
+      className="flex-row items-center rounded-2xl px-4 py-3 mb-3 border"
       style={{
-        shadowColor: Colors.briskly.shadow,
+        backgroundColor: colors.cardBg,
+        borderColor: colors.border,
+        shadowColor: colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 3,
@@ -29,10 +33,10 @@ export default function TripCard({ title, dateRange, image, onPress }: Props) {
         cachePolicy="memory-disk"
       />
       <View className="flex-1 ml-4">
-        <Text className="text-briskly-secondary font-semibold text-base leading-snug">
+        <Text className="font-semibold text-base leading-snug text-briskly-secondary dark:text-briskly-dark-secondary">
           {title}
         </Text>
-        <Text className="text-briskly-foreground text-sm mt-1">
+        <Text className="text-sm mt-1 text-briskly-foreground dark:text-briskly-dark-foreground">
           {dateRange}
         </Text>
       </View>
