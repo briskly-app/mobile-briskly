@@ -38,7 +38,7 @@ export default function TripSummaryScreen() {
         <DestinationsList destinations={trip.destinations} />
 
         <TimelineList
-          title="Thank you for choosing Briskly"
+          title="Thank you for choosing Briskly "
           items={trip.stats.map((stat) => ({
             id: stat.id,
             icon: stat.icon,
