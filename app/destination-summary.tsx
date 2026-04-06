@@ -6,6 +6,7 @@ import HeroSection from "@/components/destination-summary/hero-section";
 import WhatToSeeSection from "@/components/destination-summary/what-to-see-section";
 import DarkmodeToggler from "@/components/shared/darkmode-toggler";
 import FooterStickyButton from "@/components/shared/footer-sticky-button";
+import SwipeToDismiss from "@/components/shared/swipe-to-dismiss";
 import TimelineList from "@/components/shared/timeline-list";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { szczecinSummary } from "@/mocks/destination-summary-mocks";
@@ -15,10 +16,7 @@ export default function DestinationSummaryScreen() {
   const destination = szczecinSummary;
 
   return (
-    <View
-      className="flex-1"
-      style={{ backgroundColor: colors.backgroundPrimary }}
-    >
+    <SwipeToDismiss style={{ backgroundColor: colors.backgroundPrimary }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
@@ -54,6 +52,6 @@ export default function DestinationSummaryScreen() {
         text={`Add ${destination.departureTime} (${destination.totalDuration})`}
         onPress={() => router.push("/trip-summary")}
       />
-    </View>
+    </SwipeToDismiss>
   );
 }
