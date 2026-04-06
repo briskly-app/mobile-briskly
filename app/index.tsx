@@ -2,8 +2,8 @@ import { router } from "expo-router";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import FooterStickyButton from "@/components/shared/footer-sticky-button";
 import Header from "@/components/shared/header";
-import FooterStickyButton from "@/components/trips/footer-sticky-button";
 import TripsSection from "@/components/trips/trips-section";
 import { pastTrips, upcomingTrips } from "@/mocks/trip-mocks";
 
@@ -34,7 +34,8 @@ export default function TripsScreen() {
       </ScrollView>
 
       <FooterStickyButton
-        text="Find more"
+        icon="search"
+        text="Discover locations"
         onPress={() => router.push("/explore")}
       />
     </SafeAreaView>

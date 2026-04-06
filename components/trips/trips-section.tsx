@@ -1,7 +1,6 @@
 import { Text, View } from "react-native";
 
 import TripCard from "@/components/trips/trip-card";
-import { useAppTheme } from "@/hooks/use-app-theme";
 import { TripItemType } from "@/types/trip-item-type";
 
 interface Props {
@@ -11,13 +10,11 @@ interface Props {
 }
 
 export default function TripsSection({ title, trips, onTripPress }: Props) {
-  const { colors } = useAppTheme();
-
   if (trips.length === 0) return null;
 
   return (
     <View className="mb-6">
-      <Text className="text-2xl font-bold mb-4 text-briskly-secondary dark:text-briskly-dark-secondary">
+      <Text className="text-2xl font-bold mb-4 text-briskly-primary dark:text-briskly-dark-primary">
         {title}
       </Text>
       {trips.map((trip) => (

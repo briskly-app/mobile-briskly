@@ -1,0 +1,66 @@
+import { TripSummaryType } from "@/types/trip-summary-type";
+
+export const polandGermanyTrip: TripSummaryType = {
+  id: "ts1",
+  title: "Poland and Germany",
+  startDate: "3 May 2026",
+  endDate: "9 May 2026",
+  destinations: [
+    {
+      id: "d1",
+      city: "Wrocław",
+      image: require("@/assets/images/mocks/wroclaw.png"),
+      arrivalDate: "3 May 2026",
+      arrivalTime: "12:17",
+      departureDate: "3 May 2026",
+      departureTime: "17:00",
+    },
+    {
+      id: "d2",
+      city: "Szczecin",
+      image: require("@/assets/images/mocks/szczecin.png"),
+      arrivalDate: "3 May 2026",
+      arrivalTime: "17:00",
+      departureDate: "4 May 2026",
+      departureTime: "08:25",
+      stayDays: 2,
+    },
+    {
+      id: "d3",
+      city: "Berlin",
+      image: require("@/assets/images/mocks/berlin.png"),
+      arrivalDate: "4 May 2026",
+      arrivalTime: "16:00",
+      departureDate: "6 May 2026",
+      departureTime: "12:17",
+      stayDays: 3,
+    },
+    {
+      id: "d4",
+      city: "Wrocław",
+      image: require("@/assets/images/mocks/wroclaw.png"),
+      arrivalDate: "9 May 2026",
+      arrivalTime: "17:00",
+    },
+  ],
+  stats: [
+    {
+      id: "s1",
+      icon: "schedule",
+      label: "Total time in travel",
+      value: "10h 15m",
+    },
+    {
+      id: "s2",
+      icon: "directions-walk",
+      label: "Total time for exploring new places",
+      value: "1 day 5h 15m",
+    },
+    {
+      id: "s3",
+      icon: "visibility",
+      label: "Attractions that bring your attention",
+      value: "You explored almost 54 on your way",
+    },
+  ],
+};
