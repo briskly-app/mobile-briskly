@@ -1,23 +1,41 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DestinationCarousel from "@/components/map-view/destination-carousel";
+import MapBackground from "@/components/map-view/map-background";
 import SearchBar from "@/components/map-view/search-bar";
-import { mapDestinations } from "@/mocks/map-destinations-mocks";
+import {
+  mapDestinations,
+  mapFromDestination,
+} from "@/mocks/map-destinations-mocks";
 
 export default function MapViewScreen() {
+  const insets = useSafeAreaInsets();
+  const [selectedDestId, setSelectedDestId] = useState<string | null>(null);
+
   return (
     <View className="flex-1">
-      {/* Map placeholder */}
-      <View className="absolute inset-0 bg-red-400" />
+      <MapBackground
+        fromDestination={mapFromDestination}
+        destinations={mapDestinations}
+        selectedDestId={selectedDestId}
+        onDestSelect={setSelectedDestId}
+      />
 
-      <View className="pt-[56px]">
+      <View style={{ paddingTop: insets.top + 12 }}>
         <SearchBar />
       </View>
 
-      <View className="absolute left-0 right-0 bottom-0 pb-8">
+      <View
+        className="absolute left-0 right-0 bottom-0"
+        style={{ paddingBottom: insets.bottom + 8 }}
+      >
         <DestinationCarousel
           destinations={mapDestinations}
+          selectedDestId={selectedDestId}
+          onDestSelect={setSelectedDestId}
           onPress={() => router.push("/destination-summary")}
         />
       </View>

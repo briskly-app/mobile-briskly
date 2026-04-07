@@ -13,6 +13,7 @@ export default function DarkmodeToggler({ isTransparent = false }: Props) {
   return (
     <View
       className={`absolute right-4 flex-row items-center justify-between ${isTransparent ? "top-[56px] h-12 bg-black/35 rounded-full pl-4 pr-2" : "top-1/2 -translate-y-1/2"}`}
+      style={isTransparent ? { zIndex: 30 } : undefined}
     >
       <MaterialIcons
         name={isDark ? "dark-mode" : "light-mode"}

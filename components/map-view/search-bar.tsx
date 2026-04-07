@@ -13,6 +13,8 @@ export default function SearchBar() {
       className="mx-4 flex-row items-center gap-3 px-4 py-5 rounded-full"
       style={{
         backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.18,

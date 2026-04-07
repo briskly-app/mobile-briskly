@@ -20,7 +20,8 @@
       },
       "primaryColor": "#4F378A",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.bnszky.brisklymobileapp"
     },
     "web": {
       "output": "static",
@@ -28,6 +29,7 @@
     },
     "plugins": [
       "expo-router",
+      "@rnmapbox/maps",
       [
         "expo-splash-screen",
         {
@@ -41,7 +43,8 @@
         }
       ],
       "expo-video",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "@rnmapbox/maps"
     ],
     "experiments": {
       "typedRoutes": true,

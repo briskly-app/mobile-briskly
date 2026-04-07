@@ -9,6 +9,15 @@ export interface MapFromDestinationType {
   latitude: number;
 }
 
+export interface MapStopType {
+  city: string;
+  region: string;
+  address: string;
+  arrivalTime: string;
+  longitude: number;
+  latitude: number;
+}
+
 export interface MapDestinationType {
   id: string;
   city: string;
@@ -19,4 +28,5 @@ export interface MapDestinationType {
   travelTime: string;
   longitude: number;
   latitude: number;
+  stops?: MapStopType[];
 }

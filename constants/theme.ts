@@ -1,10 +1,13 @@
 const shared = {
   purple: "#9333ea",
-  purpleDark: "#6b21a8",
+  purpleDark: "#7e22ce",
   purpleLight: "#c084fc",
+  accent: "#f97316",
   shadow: "rgba(168, 85, 247, 0.9)",
   shadowSoft: "rgba(168, 85, 247, 0.4)",
 } as const;
+
+export type SharedColors = typeof shared;
 
 export const Themes = {
   light: {

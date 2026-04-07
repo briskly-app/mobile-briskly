@@ -3,7 +3,7 @@ import "../global.css";
 
 export default function RootLayout() {
   return (
-    <Stack initialRouteName="map-view">
+    <Stack initialRouteName="index">
       <Stack.Screen name="map-view" options={{ headerShown: false }} />
       <Stack.Screen
         name="destination-summary"

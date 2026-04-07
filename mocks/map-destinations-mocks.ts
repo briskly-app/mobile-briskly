@@ -23,6 +23,16 @@ export const mapDestinations: MapDestinationType[] = [
     travelTime: "5h 8m",
     longitude: 14.5521,
     latitude: 53.4381,
+    stops: [
+      {
+        city: "Poznań",
+        region: "Poland, Wielkopolskie",
+        address: "Poznań Główny, ul. Dworcowa 1",
+        arrivalTime: "12:17",
+        longitude: 16.93,
+        latitude: 52.4,
+      },
+    ],
   },
   {
     id: "md2",

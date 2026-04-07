@@ -14,6 +14,7 @@ import LocationInput from "@/components/explore/location-input";
 import TimeInput from "@/components/explore/time-input";
 import VideoBackground from "@/components/explore/video-background";
 import { CENTERED_OFFSET, SPRING } from "@/constants/global";
+import { router } from "expo-router";
 
 export default function ExploreScreen() {
   const [isSearching, setIsSearching] = useState(false);
@@ -50,7 +51,7 @@ export default function ExploreScreen() {
 
           <DateInput />
           <TimeInput />
-          <DiscoverButton onPress={() => console.log("Discover pressed")} />
+          <DiscoverButton onPress={() => router.push("/map-view")} />
         </Animated.View>
       </SafeAreaView>
     </View>

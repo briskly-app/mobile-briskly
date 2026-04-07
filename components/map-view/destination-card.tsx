@@ -39,7 +39,10 @@ export default function DestinationCard({
         style,
       ]}
     >
-      <View className="rounded-3xl overflow-hidden">
+      <View
+        className="rounded-3xl overflow-hidden border"
+        style={{ borderColor: colors.border }}
+      >
         <View className="h-[180px]">
           <Image
             source={destination.image}
