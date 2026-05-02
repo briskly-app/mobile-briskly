@@ -1,5 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
+import { useState } from "react";
 import {
   StyleProp,
   Text,
@@ -8,6 +9,7 @@ import {
   ViewStyle,
 } from "react-native";
 
+import { PLACEHOLDER_IMAGE_SOURCE } from "@/constants/global";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { formatDurationSeconds } from "@/lib/format/duration";
 import { ConnectionType } from "@/types/stop-type";
@@ -18,14 +20,15 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export default function DestinationCard({
-  connection,
-  onPress,
-  style,
-}: Props) {
+export default function DestinationCard({ connection, onPress, style }: Props) {
   const { colors } = useAppTheme();
   const stop = connection.destinationStop;
   const regionLine = [stop.countryName, stop.region].filter(Boolean).join(", ");
+  const [isImageError, setIsImageError] = useState(false);
+  const imageSource =
+    !isImageError && stop.thumbnailUrl
+      ? stop.thumbnailUrl
+      : PLACEHOLDER_IMAGE_SOURCE;
 
   return (
     <TouchableOpacity
@@ -47,19 +50,13 @@ export default function DestinationCard({
         style={{ borderColor: colors.border }}
       >
         <View className="h-[180px]">
-          {stop.thumbnailUrl ? (
-            <Image
-              source={stop.thumbnailUrl}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-            />
-          ) : (
-            <View
-              className="h-full w-full"
-              style={{ backgroundColor: colors.border }}
-            />
-          )}
+          <Image
+            source={imageSource}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            onError={() => setIsImageError(true)}
+          />
         </View>
 
         <View

@@ -1,15 +1,72 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { searchedFrom } from "@/mocks/map-destinations-mocks";
+import { formatIsoDateToLong } from "@/lib/format/date";
+import { OriginCitySearchType } from "@/types/stop-type";
 
-export default function SearchBar() {
+interface Props {
+  origin: OriginCitySearchType | null;
+  isLoading?: boolean;
+}
+
+export default function SearchBar({ origin, isLoading = false }: Props) {
   const { colors } = useAppTheme();
+  const pulse = useSharedValue(0.45);
 
-  const fromLine = [searchedFrom.name, searchedFrom.regionName]
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 850 }), -1, true);
+  }, [pulse]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    opacity: pulse.value,
+  }));
+
+  const fromLine = [origin?.name ?? "", origin?.countryName ?? ""]
     .filter(Boolean)
     .join(", ");
+  const dateLabel = origin?.searchDate
+    ? formatIsoDateToLong(origin.searchDate)
+    : "-";
+
+  if (isLoading) {
+    return (
+      <View
+        className="mx-4 flex-row items-center gap-3 px-4 py-5 rounded-full"
+        style={{
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
+        <Animated.View
+          className="h-8 w-8 rounded-full"
+          style={[{ backgroundColor: colors.border }, pulseStyle]}
+        />
+        <View className="flex-1 gap-2">
+          <Animated.View
+            className="h-2.5 rounded-full w-20"
+            style={[{ backgroundColor: colors.border }, pulseStyle]}
+          />
+          <Animated.View
+            className="h-3.5 rounded-full w-44"
+            style={[{ backgroundColor: colors.border }, pulseStyle]}
+          />
+        </View>
+        <Animated.View
+          className="h-3.5 rounded-full w-20"
+          style={[{ backgroundColor: colors.border }, pulseStyle]}
+        />
+      </View>
+    );
+  }
 
   return (
     <TouchableOpacity
@@ -39,7 +96,7 @@ export default function SearchBar() {
           className="text-sm font-semibold"
           style={{ color: colors.secondary }}
         >
-          {fromLine}
+          {fromLine || "-"}
         </Text>
       </View>
 
@@ -47,7 +104,7 @@ export default function SearchBar() {
         className="text-sm font-medium mb-0.5"
         style={{ color: colors.foreground }}
       >
-        {searchedFrom.searchDate}, {searchedFrom.searchTime}
+        {`${dateLabel}, ${origin?.searchTime ?? "-"}`}
       </Text>
       <View className="w-px h-5" style={{ backgroundColor: colors.border }} />
 

@@ -1,18 +1,96 @@
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DestinationCarousel from "@/components/map-view/destination-carousel";
 import MapBackground from "@/components/map-view/map-background";
 import SearchBar from "@/components/map-view/search-bar";
-import { connections } from "@/mocks/map-destinations-mocks";
+import { useDestinationsQuery } from "@/hooks/use-destinations-query";
+import { NO_CONNECTIONS_FOR_TIME } from "@/lib/constants/messages";
 
 export default function MapViewScreen() {
   const insets = useSafeAreaInsets();
+  const [isLeavingScreen, setIsLeavingScreen] = useState(false);
+  const params = useLocalSearchParams<{
+    fromCity?: string;
+    date?: string;
+    time?: string;
+    timezone?: string;
+    waitingTime?: string;
+  }>();
+
+  const queryParams = useMemo(() => {
+    if (
+      !params.fromCity ||
+      !params.date ||
+      !params.time ||
+      !params.timezone ||
+      !params.waitingTime
+    ) {
+      return null;
+    }
+    return {
+      fromCity: String(params.fromCity),
+      date: String(params.date),
+      time: String(params.time),
+      timezone: String(params.timezone),
+      waitingTime: String(params.waitingTime),
+    };
+  }, [params.date, params.fromCity, params.time, params.timezone, params.waitingTime]);
+
+  const { data, isLoading, isError, isSuccess } = useDestinationsQuery(queryParams);
+  const hasHandledFailureRef = useRef(false);
+
+  useEffect(() => {
+    if (!queryParams && !hasHandledFailureRef.current) {
+      hasHandledFailureRef.current = true;
+      setIsLeavingScreen(true);
+      requestAnimationFrame(() => {
+        router.replace("/explore");
+      });
+    }
+  }, [queryParams]);
+
+  useEffect(() => {
+    if (isError && !hasHandledFailureRef.current) {
+      hasHandledFailureRef.current = true;
+      setIsLeavingScreen(true);
+      requestAnimationFrame(() => {
+        router.replace({
+          pathname: "/explore",
+          params: { notice: "server" },
+        });
+      });
+    }
+  }, [isError]);
+
+  const connections = data?.connections ?? [];
+  const origin = data?.origin ?? null;
   const [selectedConnectionId, setSelectedConnectionId] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    if (!isSuccess || connections.length === 0) return;
+    setSelectedConnectionId(String(connections[0].id));
+  }, [isSuccess, connections]);
+
+  useEffect(() => {
+    if (!isSuccess || connections.length > 0 || hasHandledFailureRef.current) return;
+    hasHandledFailureRef.current = true;
+    setIsLeavingScreen(true);
+    requestAnimationFrame(() => {
+      router.replace({
+        pathname: "/explore",
+        params: { notice: "empty" },
+      });
+    });
+  }, [isSuccess, connections.length]);
+
+  if (isLeavingScreen) {
+    return <View className="flex-1 bg-black" />;
+  }
 
   return (
     <View className="flex-1">
@@ -20,10 +98,11 @@ export default function MapViewScreen() {
         connections={connections}
         selectedConnectionId={selectedConnectionId}
         onConnectionSelect={setSelectedConnectionId}
+        isLoading={isLoading}
       />
 
       <View style={{ paddingTop: insets.top + 12 }}>
-        <SearchBar />
+        <SearchBar origin={origin} isLoading={isLoading} />
       </View>
 
       <View
@@ -35,6 +114,8 @@ export default function MapViewScreen() {
           selectedConnectionId={selectedConnectionId}
           onConnectionSelect={setSelectedConnectionId}
           onPress={() => router.push("/destination-summary")}
+          isLoading={isLoading}
+          emptyMessage={NO_CONNECTIONS_FOR_TIME}
         />
       </View>
     </View>

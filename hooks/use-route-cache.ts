@@ -30,6 +30,8 @@ export function useRouteCache(routes: RouteDefinition[]): UseRouteCacheResult {
 
   useEffect(() => {
     const token = process.env.EXPO_PUBLIC_MAPBOX_TOKEN ?? "";
+    setIsLoading(true);
+    setRouteCache({});
 
     const fetchAll = async () => {
       const entries = await Promise.all(

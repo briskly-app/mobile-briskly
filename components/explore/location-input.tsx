@@ -20,6 +20,7 @@ interface Props {
   isSearching: boolean;
   onSearchOpen: () => void;
   onSearchClose: () => void;
+  onLocationSelect?: (location: LocationResultType | null) => void;
 }
 
 const emptySelection: LocationResultType = {
@@ -34,6 +35,7 @@ export default function LocationInput({
   isSearching,
   onSearchOpen,
   onSearchClose,
+  onLocationSelect,
 }: Props) {
   const [selected, setSelected] = useState<LocationResultType>(emptySelection);
   const [query, setQuery] = useState("");
@@ -58,6 +60,7 @@ export default function LocationInput({
 
   const handleSelect = (result: LocationResultType) => {
     setSelected(result);
+    onLocationSelect?.(result);
     Keyboard.dismiss();
     onSearchClose();
   };

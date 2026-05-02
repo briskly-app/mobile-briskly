@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/theme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 function formatTime(date: Date): string {
@@ -17,22 +17,28 @@ function toInputValue(d: Date) {
   return `${hh}:${mm}`;
 }
 
-export default function TimeInput() {
-  const [time, setTime] = useState(() => {
-    const d = new Date();
-    d.setHours(17, 0, 0, 0);
-    return d;
-  });
+interface Props {
+  value: string;
+  onChange: (next: string) => void;
+}
+
+export default function TimeInput({ value, onChange }: Props) {
   const [showPicker, setShowPicker] = useState(false);
+  const time = useMemo(() => {
+    const [h, m] = value.split(":").map(Number);
+    const d = new Date();
+    d.setHours(
+      Number.isFinite(h) ? h : 17,
+      Number.isFinite(m) ? m : 0,
+      0,
+      0,
+    );
+    return d;
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (val) {
-      const [h, m] = val.split(":").map(Number);
-      const d = new Date(time);
-      d.setHours(h, m, 0, 0);
-      setTime(d);
-    }
+    if (val) onChange(val);
     setShowPicker(false);
   };
 

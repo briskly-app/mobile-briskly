@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/theme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 function formatDate(date: Date): string {
@@ -16,13 +16,21 @@ function toInputValue(d: Date) {
   return d.toISOString().split("T")[0];
 }
 
-export default function DateInput() {
-  const [date, setDate] = useState(new Date());
+interface Props {
+  value: string;
+  onChange: (next: string) => void;
+}
+
+export default function DateInput({ value, onChange }: Props) {
   const [showPicker, setShowPicker] = useState(false);
+  const date = useMemo(() => {
+    const parsed = new Date(`${value}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (val) setDate(new Date(val + "T00:00:00"));
+    if (val) onChange(val);
     setShowPicker(false);
   };
 

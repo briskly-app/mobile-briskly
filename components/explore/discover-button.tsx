@@ -3,20 +3,26 @@ import { Text, TouchableOpacity } from "react-native";
 
 interface DiscoverButtonProps {
   onPress?: () => void;
+  disabled?: boolean;
 }
 
-export default function DiscoverButton({ onPress }: DiscoverButtonProps) {
+export default function DiscoverButton({
+  onPress,
+  disabled = false,
+}: DiscoverButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.85}
+      activeOpacity={disabled ? 1 : 0.85}
       className="mt-2 rounded-full"
+      disabled={disabled}
       style={{
         shadowColor: "#6B0759",
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.55,
         shadowRadius: 14,
         elevation: 10,
+        opacity: disabled ? 0.6 : 1,
       }}
     >
       <LinearGradient

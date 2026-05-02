@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Platform, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { Platform, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,11 +15,25 @@ import LocationInput from "@/components/explore/location-input";
 import TimeInput from "@/components/explore/time-input";
 import VideoBackground from "@/components/explore/video-background";
 import { CENTERED_OFFSET, SPRING } from "@/constants/global";
-import { router } from "expo-router";
+import {
+  NO_CONNECTIONS_FOR_TIME,
+  SERVER_ERROR,
+} from "@/lib/constants/messages";
+import { LocationResultType } from "@/types/location-result-type";
 
 export default function ExploreScreen() {
+  const { notice } = useLocalSearchParams<{ notice?: string }>();
+  const lastNoticeRef = useRef<string | null>(null);
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedLocation, setSelectedLocation] =
+    useState<LocationResultType | null>(null);
+  const [searchDate, setSearchDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [searchTime, setSearchTime] = useState("18:00");
   const offsetY = useSharedValue(CENTERED_OFFSET);
+  const timezone = "Europe/Warsaw";
 
   const contentStyle = useAnimatedStyle(() => ({
     paddingTop: offsetY.value,
@@ -34,6 +49,41 @@ export default function ExploreScreen() {
     setIsSearching(false);
   };
 
+  const handleDiscover = () => {
+    if (!selectedLocation?.id) return;
+
+    router.push({
+      pathname: "/map-view",
+      params: {
+        fromCity: selectedLocation.id,
+        date: searchDate,
+        time: searchTime,
+        timezone,
+        waitingTime: "12000",
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (!notice || notice === lastNoticeRef.current) return;
+    lastNoticeRef.current = notice;
+    router.setParams({ notice: undefined });
+
+    if (notice === "server") {
+      setNoticeMessage(SERVER_ERROR);
+      return;
+    }
+    if (notice === "empty") {
+      setNoticeMessage(NO_CONNECTIONS_FOR_TIME);
+    }
+  }, [notice]);
+
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const id = setTimeout(() => setNoticeMessage(null), 6000);
+    return () => clearTimeout(id);
+  }, [noticeMessage]);
+
   return (
     <View className="flex-1">
       <VideoBackground />
@@ -47,13 +97,28 @@ export default function ExploreScreen() {
             isSearching={isSearching}
             onSearchOpen={handleSearchOpen}
             onSearchClose={handleSearchClose}
+            onLocationSelect={setSelectedLocation}
           />
 
-          <DateInput />
-          <TimeInput />
-          <DiscoverButton onPress={() => router.push("/map-view")} />
+          <DateInput value={searchDate} onChange={setSearchDate} />
+          <TimeInput value={searchTime} onChange={setSearchTime} />
+          <DiscoverButton
+            onPress={handleDiscover}
+            disabled={!selectedLocation?.id}
+          />
         </Animated.View>
       </SafeAreaView>
+
+      {noticeMessage ? (
+        <View
+          pointerEvents="none"
+          className="absolute left-10 right-10 bottom-8 bg-red-600 rounded-2xl px-4 py-3"
+        >
+          <Text className="text-base text-white text-center font-semibold">
+            {noticeMessage}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

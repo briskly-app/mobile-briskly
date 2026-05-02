@@ -30,12 +30,14 @@ interface Props {
   connections: ConnectionType[];
   selectedConnectionId: string | null;
   onConnectionSelect: (id: string | null) => void;
+  isLoading?: boolean;
 }
 
 export default function MapBackground({
   connections,
   selectedConnectionId,
   onConnectionSelect,
+  isLoading = false,
 }: Props) {
   const { isDark } = useAppTheme();
 
@@ -54,7 +56,8 @@ export default function MapBackground({
     [connections],
   );
 
-  const { isLoading, getRouteCoords } = useRouteCache(routes);
+  const { isLoading: isRouteLoading, getRouteCoords } = useRouteCache(routes);
+  const showLoading = isLoading || isRouteLoading;
 
   const activeCoords = useMemo<GeoCoord[]>(() => {
     if (!originStop) return [];
@@ -124,9 +127,6 @@ export default function MapBackground({
     LineLayer,
   } = MapboxModule as typeof import("@rnmapbox/maps");
 
-  const selectedConn =
-    connections.find((c) => connectionKey(c) === selectedConnectionId) ??
-    null;
   const routeCoords = getRouteCoords(selectedConnectionId);
 
   const styleURL = isDark
@@ -136,12 +136,12 @@ export default function MapBackground({
   return (
     <View style={StyleSheet.absoluteFillObject}>
       <MapView
-        style={[StyleSheet.absoluteFillObject, isLoading && { opacity: 0.25 }]}
+        style={[StyleSheet.absoluteFillObject, showLoading && { opacity: 0.25 }]}
         styleURL={styleURL}
       >
         <Camera
           bounds={cameraBounds}
-          animationDuration={isLoading ? 0 : 800}
+          animationDuration={showLoading ? 0 : 800}
           animationMode="easeTo"
         />
 
@@ -182,7 +182,7 @@ export default function MapBackground({
         })}
       </MapView>
 
-      {isLoading && <MapLoader />}
+      {showLoading && <MapLoader />}
     </View>
   );
 }

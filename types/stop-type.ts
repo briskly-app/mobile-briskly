@@ -26,7 +26,7 @@ export interface StopType {
 }
 
 export interface ConnectionType {
-  id: number;
+  id: string;
   departureDate: string;
   departureTime: string;
   arrivalDate: string;

@@ -25,7 +25,7 @@ const zielonaGoraStart: StopType = {
 
 export const connections: ConnectionType[] = [
   {
-    id: 1,
+    id: "1",
     departureDate: "2026-04-30",
     departureTime: "06:00",
     arrivalDate: "2026-04-30",
@@ -49,7 +49,7 @@ export const connections: ConnectionType[] = [
     },
   },
   {
-    id: 2,
+    id: "2",
     departureDate: "2026-04-30",
     departureTime: "09:32",
     arrivalDate: "2026-04-30",
@@ -73,7 +73,7 @@ export const connections: ConnectionType[] = [
     },
   },
   {
-    id: 3,
+    id: "3",
     departureDate: "2026-04-30",
     departureTime: "12:38",
     arrivalDate: "2026-04-30",
