@@ -146,6 +146,7 @@ export default function MapBackground({
 
         {routeCoords && (
           <RouteLine
+            id="main-route"
             ShapeSource={ShapeSource}
             LineLayer={LineLayer}
             coordinates={routeCoords}

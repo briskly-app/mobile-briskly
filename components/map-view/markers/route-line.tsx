@@ -3,6 +3,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 type MapboxTypes = typeof import("@rnmapbox/maps");
 
 interface Props {
+  id: string;
   ShapeSource: MapboxTypes["ShapeSource"];
   LineLayer: MapboxTypes["LineLayer"];
   coordinates: number[][];
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function RouteLine({
+  id,
   ShapeSource,
   LineLayer,
   coordinates,
@@ -25,9 +27,9 @@ export default function RouteLine({
   };
 
   return (
-    <ShapeSource id="routeSource" shape={shape}>
+    <ShapeSource id={`${id}-source`} shape={shape}>
       <LineLayer
-        id="routeShadow"
+        id={`${id}-shadow`}
         style={{
           lineColor: "#000",
           lineWidth: 6,
@@ -37,7 +39,7 @@ export default function RouteLine({
         }}
       />
       <LineLayer
-        id="routeLine"
+        id={`${id}-line`}
         style={{
           lineColor,
           lineWidth: 4,

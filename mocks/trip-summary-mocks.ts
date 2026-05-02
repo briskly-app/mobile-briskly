@@ -14,6 +14,8 @@ export const polandGermanyTrip: TripSummaryType = {
       arrivalTime: "12:17",
       departureDate: "3 May 2026",
       departureTime: "17:00",
+      longitude: 17.0385,
+      latitude: 51.1079,
     },
     {
       id: "d2",
@@ -24,6 +26,8 @@ export const polandGermanyTrip: TripSummaryType = {
       departureDate: "4 May 2026",
       departureTime: "08:25",
       stayDays: 2,
+      longitude: 14.5521,
+      latitude: 53.4381,
     },
     {
       id: "d3",
@@ -34,6 +38,8 @@ export const polandGermanyTrip: TripSummaryType = {
       departureDate: "6 May 2026",
       departureTime: "12:17",
       stayDays: 3,
+      longitude: 13.3889,
+      latitude: 52.5244,
     },
     {
       id: "d4",
@@ -41,6 +47,8 @@ export const polandGermanyTrip: TripSummaryType = {
       image: require("@/assets/images/mocks/wroclaw.png"),
       arrivalDate: "9 May 2026",
       arrivalTime: "17:00",
+      longitude: 17.0385,
+      latitude: 51.1079,
     },
   ],
   stats: [

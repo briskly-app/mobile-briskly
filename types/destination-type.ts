@@ -9,4 +9,6 @@ export interface DestinationType {
   departureDate?: string;
   departureTime?: string;
   stayDays?: number;
+  longitude: number;
+  latitude: number;
 }

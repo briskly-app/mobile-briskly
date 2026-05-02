@@ -7,6 +7,7 @@ import Header from "@/components/shared/header";
 import SectionHeader from "@/components/shared/section-header";
 import TimelineList from "@/components/shared/timeline-list";
 import DestinationsList from "@/components/trip-summary/destinations-list";
+import MapSummary from "@/components/trip-summary/map-summary";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { polandGermanyTrip } from "@/mocks/trip-summary-mocks";
 
@@ -36,6 +37,9 @@ export default function TripSummaryScreen() {
         />
 
         <DestinationsList destinations={trip.destinations} />
+
+        <SectionHeader title="Take map with you..." center textSize="2xl" />
+        <MapSummary destinations={trip.destinations} />
 
         <TimelineList
           title="Thank you for choosing Briskly "
