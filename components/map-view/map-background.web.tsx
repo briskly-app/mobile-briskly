@@ -1,13 +1,11 @@
 import { View } from "react-native";
 
-import {
-  MapDestinationType,
-  MapFromDestinationType,
-} from "@/types/map-destination-type";
+import { ConnectionType } from "@/types/stop-type";
 
 interface Props {
-  fromDestination: MapFromDestinationType;
-  destinations: MapDestinationType[];
+  connections: ConnectionType[];
+  selectedConnectionId: string | null;
+  onConnectionSelect: (id: string | null) => void;
 }
 
 export default function MapBackground(_props: Props) {

@@ -9,20 +9,23 @@ import {
 } from "react-native";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { MapDestinationType } from "@/types/map-destination-type";
+import { formatDurationSeconds } from "@/lib/format/duration";
+import { ConnectionType } from "@/types/stop-type";
 
 interface Props {
-  destination: MapDestinationType;
+  connection: ConnectionType;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
 export default function DestinationCard({
-  destination,
+  connection,
   onPress,
   style,
 }: Props) {
   const { colors } = useAppTheme();
+  const stop = connection.destinationStop;
+  const regionLine = [stop.countryName, stop.region].filter(Boolean).join(", ");
 
   return (
     <TouchableOpacity
@@ -44,12 +47,19 @@ export default function DestinationCard({
         style={{ borderColor: colors.border }}
       >
         <View className="h-[180px]">
-          <Image
-            source={destination.image}
-            style={{ width: "100%", height: "100%" }}
-            contentFit="cover"
-            cachePolicy="memory-disk"
-          />
+          {stop.thumbnailUrl ? (
+            <Image
+              source={stop.thumbnailUrl}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+            />
+          ) : (
+            <View
+              className="h-full w-full"
+              style={{ backgroundColor: colors.border }}
+            />
+          )}
         </View>
 
         <View
@@ -62,13 +72,13 @@ export default function DestinationCard({
                 className="text-base font-bold"
                 style={{ color: colors.secondary }}
               >
-                {destination.city}
+                {stop.cityName}
               </Text>
               <Text
                 className="text-xs mt-0.5"
                 style={{ color: colors.foreground }}
               >
-                {destination.region}
+                {regionLine}
               </Text>
             </View>
 
@@ -77,7 +87,7 @@ export default function DestinationCard({
                 className="text-sm font-bold"
                 style={{ color: colors.primary }}
               >
-                {destination.arrivalTime}
+                {connection.arrivalTime}
               </Text>
               <View className="flex-row items-center gap-0.5 mt-0.5">
                 <MaterialIcons
@@ -86,7 +96,7 @@ export default function DestinationCard({
                   color={colors.foreground}
                 />
                 <Text className="text-xs" style={{ color: colors.foreground }}>
-                  {destination.travelTime}
+                  {formatDurationSeconds(connection.durationInTravel)}
                 </Text>
               </View>
             </View>
@@ -103,7 +113,7 @@ export default function DestinationCard({
               style={{ color: colors.foreground }}
               numberOfLines={1}
             >
-              {destination.address}
+              {stop.name}
             </Text>
           </View>
         </View>

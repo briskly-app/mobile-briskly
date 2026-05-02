@@ -2,10 +2,14 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { mapFromDestination } from "@/mocks/map-destinations-mocks";
+import { searchedFrom } from "@/mocks/map-destinations-mocks";
 
 export default function SearchBar() {
   const { colors } = useAppTheme();
+
+  const fromLine = [searchedFrom.name, searchedFrom.regionName]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <TouchableOpacity
@@ -35,7 +39,7 @@ export default function SearchBar() {
           className="text-sm font-semibold"
           style={{ color: colors.secondary }}
         >
-          {mapFromDestination.city}, {mapFromDestination.region}
+          {fromLine}
         </Text>
       </View>
 
@@ -43,7 +47,7 @@ export default function SearchBar() {
         className="text-sm font-medium mb-0.5"
         style={{ color: colors.foreground }}
       >
-        {mapFromDestination.departureDate}, {mapFromDestination.departureTime}
+        {searchedFrom.searchDate}, {searchedFrom.searchTime}
       </Text>
       <View className="w-px h-5" style={{ backgroundColor: colors.border }} />
 

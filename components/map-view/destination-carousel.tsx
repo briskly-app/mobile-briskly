@@ -1,44 +1,50 @@
 import { useEffect, useRef } from "react";
 import { FlatList, useWindowDimensions, View, ViewToken } from "react-native";
 
-import { MapDestinationType } from "@/types/map-destination-type";
+import { ConnectionType } from "@/types/stop-type";
 
 import DestinationCard from "./destination-card";
 
 const CARD_INSET = 40;
 const CARD_GAP = 12;
 
+function connectionKey(c: ConnectionType): string {
+  return String(c.id);
+}
+
 interface Props {
-  destinations: MapDestinationType[];
-  selectedDestId: string | null;
-  onDestSelect: (id: string) => void;
+  connections: ConnectionType[];
+  selectedConnectionId: string | null;
+  onConnectionSelect: (id: string) => void;
   onPress: () => void;
 }
 
 export default function DestinationCarousel({
-  destinations,
-  selectedDestId,
-  onDestSelect,
+  connections,
+  selectedConnectionId,
+  onConnectionSelect,
   onPress,
 }: Props) {
   const { width } = useWindowDimensions();
   const cardWidth = width - 2 * CARD_INSET;
   const snapInterval = cardWidth + CARD_GAP;
 
-  const snapOffsets = destinations.map((_, i) => i * snapInterval);
+  const snapOffsets = connections.map((_, i) => i * snapInterval);
 
-  const flatListRef = useRef<FlatList<MapDestinationType>>(null);
+  const flatListRef = useRef<FlatList<ConnectionType>>(null);
 
   const isProgrammaticScroll = useRef(false);
 
-  const onDestSelectRef = useRef(onDestSelect);
+  const onConnectionSelectRef = useRef(onConnectionSelect);
   useEffect(() => {
-    onDestSelectRef.current = onDestSelect;
-  }, [onDestSelect]);
+    onConnectionSelectRef.current = onConnectionSelect;
+  }, [onConnectionSelect]);
 
   useEffect(() => {
-    if (!selectedDestId) return;
-    const index = destinations.findIndex((d) => d.id === selectedDestId);
+    if (!selectedConnectionId) return;
+    const index = connections.findIndex(
+      (c) => connectionKey(c) === selectedConnectionId,
+    );
     if (index === -1) return;
 
     isProgrammaticScroll.current = true;
@@ -51,7 +57,7 @@ export default function DestinationCarousel({
         isProgrammaticScroll.current = false;
       }, 450);
     }, 50);
-  }, [selectedDestId, destinations, snapInterval]);
+  }, [selectedConnectionId, connections, snapInterval]);
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 60,
@@ -62,7 +68,8 @@ export default function DestinationCarousel({
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       if (isProgrammaticScroll.current) return;
       if (viewableItems.length > 0) {
-        onDestSelectRef.current(viewableItems[0].item.id);
+        const item = viewableItems[0].item as ConnectionType;
+        onConnectionSelectRef.current(connectionKey(item));
       }
     },
   );
@@ -70,9 +77,9 @@ export default function DestinationCarousel({
   return (
     <FlatList
       ref={flatListRef}
-      data={destinations}
+      data={connections}
       horizontal
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => connectionKey(item)}
       showsHorizontalScrollIndicator={false}
       snapToOffsets={snapOffsets}
       decelerationRate="fast"
@@ -98,7 +105,7 @@ export default function DestinationCarousel({
       }}
       renderItem={({ item }) => (
         <DestinationCard
-          destination={item}
+          connection={item}
           onPress={onPress}
           style={{ width: cardWidth }}
         />

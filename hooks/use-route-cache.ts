@@ -67,7 +67,7 @@ export function useRouteCache(routes: RouteDefinition[]): UseRouteCacheResult {
     };
 
     fetchAll();
-  }, []);
+  }, [routes]);
 
   const getRouteCoords = (id: string | null): RouteGeometry | null => {
     if (!id) return null;

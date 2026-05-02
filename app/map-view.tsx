@@ -6,22 +6,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DestinationCarousel from "@/components/map-view/destination-carousel";
 import MapBackground from "@/components/map-view/map-background";
 import SearchBar from "@/components/map-view/search-bar";
-import {
-  mapDestinations,
-  mapFromDestination,
-} from "@/mocks/map-destinations-mocks";
+import { connections } from "@/mocks/map-destinations-mocks";
 
 export default function MapViewScreen() {
   const insets = useSafeAreaInsets();
-  const [selectedDestId, setSelectedDestId] = useState<string | null>(null);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<
+    string | null
+  >(null);
 
   return (
     <View className="flex-1">
       <MapBackground
-        fromDestination={mapFromDestination}
-        destinations={mapDestinations}
-        selectedDestId={selectedDestId}
-        onDestSelect={setSelectedDestId}
+        connections={connections}
+        selectedConnectionId={selectedConnectionId}
+        onConnectionSelect={setSelectedConnectionId}
       />
 
       <View style={{ paddingTop: insets.top + 12 }}>
@@ -33,9 +31,9 @@ export default function MapViewScreen() {
         style={{ paddingBottom: insets.bottom + 8 }}
       >
         <DestinationCarousel
-          destinations={mapDestinations}
-          selectedDestId={selectedDestId}
-          onDestSelect={setSelectedDestId}
+          connections={connections}
+          selectedConnectionId={selectedConnectionId}
+          onConnectionSelect={setSelectedConnectionId}
           onPress={() => router.push("/destination-summary")}
         />
       </View>

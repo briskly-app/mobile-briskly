@@ -5,15 +5,12 @@ import MapLoader from "@/components/shared/map-loader";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { GeoCoord, useCameraBounds } from "@/hooks/use-camera-bounds";
 import { RouteDefinition, useRouteCache } from "@/hooks/use-route-cache";
-import {
-  MapDestinationType,
-  MapFromDestinationType,
-} from "@/types/map-destination-type";
+import { formatDurationSeconds } from "@/lib/format/duration";
+import { ConnectionType } from "@/types/stop-type";
 
 import DestinationMarker from "./markers/destination-marker";
 import RouteLine from "./markers/route-line";
 import StartMarker from "./markers/start-marker";
-import StopMarker from "./markers/stop-marker";
 
 let MapboxModule: typeof import("@rnmapbox/maps") | null = null;
 try {
@@ -25,83 +22,87 @@ try {
   MapboxModule = null;
 }
 
+function connectionKey(c: ConnectionType): string {
+  return String(c.id);
+}
+
 interface Props {
-  fromDestination: MapFromDestinationType;
-  destinations: MapDestinationType[];
-  selectedDestId: string | null;
-  onDestSelect: (id: string | null) => void;
+  connections: ConnectionType[];
+  selectedConnectionId: string | null;
+  onConnectionSelect: (id: string | null) => void;
 }
 
 export default function MapBackground({
-  fromDestination,
-  destinations,
-  selectedDestId,
-  onDestSelect,
+  connections,
+  selectedConnectionId,
+  onConnectionSelect,
 }: Props) {
   const { isDark } = useAppTheme();
 
+  const originStop = connections[0]?.startingStop;
+
   const routes = useMemo<RouteDefinition[]>(
     () =>
-      destinations.map((dest) => ({
-        id: dest.id,
-        longStart: fromDestination.longitude,
-        latStart: fromDestination.latitude,
-        stops: (dest.stops ?? []).map((s) => ({
-          longitude: s.longitude,
-          latitude: s.latitude,
-        })),
-        longEnd: dest.longitude,
-        latEnd: dest.latitude,
+      connections.map((conn) => ({
+        id: connectionKey(conn),
+        longStart: conn.startingStop.longitude,
+        latStart: conn.startingStop.latitude,
+        stops: [],
+        longEnd: conn.destinationStop.longitude,
+        latEnd: conn.destinationStop.latitude,
       })),
-    [destinations, fromDestination],
+    [connections],
   );
 
   const { isLoading, getRouteCoords } = useRouteCache(routes);
 
   const activeCoords = useMemo<GeoCoord[]>(() => {
-    if (selectedDestId) {
-      const routeCoords = getRouteCoords(selectedDestId);
+    if (!originStop) return [];
+
+    if (selectedConnectionId) {
+      const routeCoords = getRouteCoords(selectedConnectionId);
       if (routeCoords) {
         return routeCoords.map(([longitude, latitude]) => ({
           longitude,
           latitude,
         }));
       }
-      const dest = destinations.find((d) => d.id === selectedDestId);
-      if (dest) {
+      const conn = connections.find(
+        (c) => connectionKey(c) === selectedConnectionId,
+      );
+      if (conn) {
         return [
           {
-            longitude: fromDestination.longitude,
-            latitude: fromDestination.latitude,
+            longitude: conn.startingStop.longitude,
+            latitude: conn.startingStop.latitude,
           },
-          ...(dest.stops ?? []).map((s) => ({
-            longitude: s.longitude,
-            latitude: s.latitude,
-          })),
-          { longitude: dest.longitude, latitude: dest.latitude },
+          {
+            longitude: conn.destinationStop.longitude,
+            latitude: conn.destinationStop.latitude,
+          },
         ];
       }
     }
     return [
       {
-        longitude: fromDestination.longitude,
-        latitude: fromDestination.latitude,
+        longitude: originStop.longitude,
+        latitude: originStop.latitude,
       },
-      ...destinations.map((d) => ({
-        longitude: d.longitude,
-        latitude: d.latitude,
+      ...connections.map((c) => ({
+        longitude: c.destinationStop.longitude,
+        latitude: c.destinationStop.latitude,
       })),
     ];
-  }, [selectedDestId, destinations, fromDestination, getRouteCoords]);
+  }, [selectedConnectionId, connections, originStop, getRouteCoords]);
 
   const cameraPadding = useMemo(
     () => ({
-      paddingTop: selectedDestId ? 100 : 80,
-      paddingBottom: selectedDestId ? 360 : 320,
+      paddingTop: selectedConnectionId ? 100 : 80,
+      paddingBottom: selectedConnectionId ? 360 : 320,
       paddingLeft: 60,
       paddingRight: 60,
     }),
-    [selectedDestId],
+    [selectedConnectionId],
   );
 
   const cameraBounds = useCameraBounds(activeCoords, cameraPadding);
@@ -116,7 +117,6 @@ export default function MapBackground({
   }
 
   const {
-    default: Mapbox,
     MapView,
     Camera,
     MarkerView,
@@ -124,9 +124,10 @@ export default function MapBackground({
     LineLayer,
   } = MapboxModule as typeof import("@rnmapbox/maps");
 
-  const selectedDest =
-    destinations.find((d) => d.id === selectedDestId) ?? null;
-  const routeCoords = getRouteCoords(selectedDestId);
+  const selectedConn =
+    connections.find((c) => connectionKey(c) === selectedConnectionId) ??
+    null;
+  const routeCoords = getRouteCoords(selectedConnectionId);
 
   const styleURL = isDark
     ? "mapbox://styles/mapbox/dark-v11"
@@ -153,36 +154,32 @@ export default function MapBackground({
           />
         )}
 
-        <StartMarker
-          MarkerView={MarkerView}
-          id="from"
-          coordinate={[fromDestination.longitude, fromDestination.latitude]}
-        />
-
-        {destinations.map((dest) => (
-          <DestinationMarker
-            key={dest.id}
+        {originStop ? (
+          <StartMarker
             MarkerView={MarkerView}
-            id={dest.id}
-            coordinate={[dest.longitude, dest.latitude]}
-            arrivalTime={dest.arrivalTime}
-            travelTime={dest.travelTime}
-            isSelected={dest.id === selectedDestId}
-            onPress={() =>
-              onDestSelect(dest.id === selectedDestId ? null : dest.id)
-            }
+            id="from"
+            coordinate={[originStop.longitude, originStop.latitude]}
           />
-        ))}
+        ) : null}
 
-        {(selectedDest?.stops ?? []).map((stop) => (
-          <StopMarker
-            key={`stop-${stop.city}`}
-            MarkerView={MarkerView}
-            id={`stop-${stop.city}`}
-            coordinate={[stop.longitude, stop.latitude]}
-            arrivalTime={stop.arrivalTime}
-          />
-        ))}
+        {connections.map((conn) => {
+          const id = connectionKey(conn);
+          const dest = conn.destinationStop;
+          return (
+            <DestinationMarker
+              key={id}
+              MarkerView={MarkerView}
+              id={id}
+              coordinate={[dest.longitude, dest.latitude]}
+              arrivalTime={conn.arrivalTime}
+              travelTime={formatDurationSeconds(conn.durationInTravel)}
+              isSelected={id === selectedConnectionId}
+              onPress={() =>
+                onConnectionSelect(id === selectedConnectionId ? null : id)
+              }
+            />
+          );
+        })}
       </MapView>
 
       {isLoading && <MapLoader />}
