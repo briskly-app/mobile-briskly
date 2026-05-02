@@ -1,6 +1,7 @@
 export interface LocationResultType {
+  id: string;
+  name: string;
+  regionName: string;
   countryCode: string;
-  city: string;
-  region: string;
-  stop: string;
+  countryName: string;
 }

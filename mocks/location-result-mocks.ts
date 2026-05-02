@@ -2,21 +2,17 @@ import { LocationResultType } from "@/types/location-result-type";
 
 export const LocationResultMocks: LocationResultType[] = [
   {
+    id: "3081368",
+    name: "Wrocław",
+    regionName: "Lower Silesia",
     countryCode: "PL",
-    city: "Wrocław ",
-    region: "Dolny Śląsk ",
-    stop: "Plac Grunwaldzki ",
+    countryName: "Poland",
   },
   {
-    countryCode: "PL",
-    city: "Wrocław ",
-    region: "Dolny Śląsk ",
-    stop: "Dworzec Autobusowy, Centrum ",
-  },
-  {
+    id: "2509274",
+    name: "Valencia",
+    regionName: "Valencia",
     countryCode: "ES",
-    city: "Valencia ",
-    region: "Valencia ",
-    stop: "City Centre ",
+    countryName: "Spain",
   },
 ];

@@ -1,6 +1,7 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Keyboard,
   Text,
   TextInput,
@@ -11,7 +12,8 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import LocationResultItem from "@/components/explore/location-result";
 import { Colors } from "@/constants/theme";
-import { LocationResultMocks } from "@/mocks/location-result-mocks";
+import { useLocationSearchQuery } from "@/hooks/use-location-search-query";
+import { LOCATION_PLACEHOLDER, SERVER_ERROR } from "@/lib/constants/messages";
 import { LocationResultType } from "@/types/location-result-type";
 
 interface Props {
@@ -20,16 +22,27 @@ interface Props {
   onSearchClose: () => void;
 }
 
+const emptySelection: LocationResultType = {
+  id: "",
+  countryCode: "",
+  name: "",
+  regionName: "",
+  countryName: "",
+};
+
 export default function LocationInput({
   isSearching,
   onSearchOpen,
   onSearchClose,
 }: Props) {
-  const [selected, setSelected] = useState<LocationResultType>(
-    LocationResultMocks[0],
-  );
+  const [selected, setSelected] = useState<LocationResultType>(emptySelection);
   const [query, setQuery] = useState("");
   const inputRef = useRef<TextInput>(null);
+
+  const trimmedQuery = query.trim();
+  const showSearchPanel = trimmedQuery.length >= 3;
+
+  const { data, isFetching, isError } = useLocationSearchQuery(query);
 
   useEffect(() => {
     if (isSearching) {
@@ -49,8 +62,10 @@ export default function LocationInput({
     onSearchClose();
   };
 
-  const showResults = query.length > 0;
-  const displayValue = `${selected.city}, ${selected.stop}`;
+  const displayValue =
+    selected.name || selected.regionName || selected.countryName
+      ? `${selected.name}, ${selected.regionName}, ${selected.countryName}`
+      : "Search cities";
 
   if (!isSearching) {
     return (
@@ -73,6 +88,8 @@ export default function LocationInput({
       </TouchableOpacity>
     );
   }
+
+  const results = data ?? [];
 
   return (
     <View className="bg-white rounded-3xl mb-4 overflow-hidden">
@@ -99,6 +116,14 @@ export default function LocationInput({
           returnKeyType="search"
         />
 
+        {showSearchPanel && isFetching && results.length > 0 ? (
+          <ActivityIndicator
+            size="small"
+            color={Colors.briskly.secondary}
+            style={{ marginLeft: 8 }}
+          />
+        ) : null}
+
         {query.length > 0 && (
           <TouchableOpacity
             onPress={() => setQuery("")}
@@ -114,23 +139,44 @@ export default function LocationInput({
         )}
       </View>
 
-      {showResults && (
+      {showSearchPanel && (
         <Animated.View
           entering={FadeIn.duration(180)}
           exiting={FadeOut.duration(120)}
         >
-          {LocationResultMocks.map((item, index) => (
-            <LocationResultItem
-              key={`${item.city}-${item.stop}`}
-              {...item}
-              isLast={index === LocationResultMocks.length - 1}
-              onSelect={handleSelect}
-            />
-          ))}
+          {isError ? (
+            <View className="px-5 py-6">
+              <Text className="text-briskly-foreground text-sm text-center">
+                {SERVER_ERROR}
+              </Text>
+            </View>
+          ) : isFetching && results.length === 0 ? (
+            <View className="py-8 items-center justify-center">
+              <ActivityIndicator
+                size="small"
+                color={Colors.briskly.secondary}
+              />
+            </View>
+          ) : results.length === 0 ? (
+            <View className="px-5 py-6">
+              <Text className="text-briskly-foreground text-sm text-center">
+                No results for “{trimmedQuery}”.
+              </Text>
+            </View>
+          ) : (
+            results.map((item, index) => (
+              <LocationResultItem
+                key={item.id}
+                {...item}
+                isLast={index === results.length - 1}
+                onSelect={handleSelect}
+              />
+            ))
+          )}
         </Animated.View>
       )}
 
-      {!showResults && (
+      {!showSearchPanel && (
         <Animated.View
           entering={FadeIn.duration(180)}
           exiting={FadeOut.duration(120)}
@@ -142,8 +188,8 @@ export default function LocationInput({
             color={Colors.briskly.foreground}
             style={{ alignSelf: "center" }}
           />
-          <Text className="text-briskly-foreground text-base mt-2 text-center">
-            Start typing to search...
+          <Text className="text-briskly-foreground text-base mt-2 text-center px-6">
+            {LOCATION_PLACEHOLDER}
           </Text>
         </Animated.View>
       )}
