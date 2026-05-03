@@ -5,6 +5,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 interface Props {
   city: string;
   region: string;
+  country: string;
   address: string;
   descriptionParagraphs: string[];
 }
@@ -12,6 +13,7 @@ interface Props {
 export default function DestinationInfo({
   city,
   region,
+  country,
   address,
   descriptionParagraphs,
 }: Props) {
@@ -23,7 +25,7 @@ export default function DestinationInfo({
         className="text-3xl font-bold mb-3 leading-7 text-center"
         style={{ color: colors.secondary }}
       >
-        {city} - {region}
+        {city} - {region}, {country}
       </Text>
 
       <Text

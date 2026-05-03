@@ -24,7 +24,7 @@ interface Props {
   connections: ConnectionType[];
   selectedConnectionId: string | null;
   onConnectionSelect: (id: string) => void;
-  onPress: () => void;
+  onPress: (connection: ConnectionType) => void;
   isLoading?: boolean;
   emptyMessage?: string;
 }

@@ -17,6 +17,7 @@ type ApiStop = {
   thumbnail_url?: string;
   suburb?: string;
   region?: string;
+  description_paragraphs?: string[];
 };
 
 type ApiConnection = {
@@ -65,6 +66,9 @@ function mapStop(stop: ApiStop | undefined): StopType {
     thumbnailUrl: stop?.thumbnail_url ? { uri: stop.thumbnail_url } : undefined,
     suburb: safeString(stop?.suburb) || undefined,
     region: safeString(stop?.region) || undefined,
+    descriptionParagraphs: Array.isArray(stop?.description_paragraphs)
+      ? stop?.description_paragraphs
+      : [],
   };
 }
 

@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,8 +9,10 @@ import MapBackground from "@/components/map-view/map-background";
 import SearchBar from "@/components/map-view/search-bar";
 import { useDestinationsQuery } from "@/hooks/use-destinations-query";
 import { NO_CONNECTIONS_FOR_TIME } from "@/lib/constants/messages";
+import { ConnectionType } from "@/types/stop-type";
 
 export default function MapViewScreen() {
+  const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const [isLeavingScreen, setIsLeavingScreen] = useState(false);
   const params = useLocalSearchParams<{
@@ -37,9 +40,16 @@ export default function MapViewScreen() {
       timezone: String(params.timezone),
       waitingTime: String(params.waitingTime),
     };
-  }, [params.date, params.fromCity, params.time, params.timezone, params.waitingTime]);
+  }, [
+    params.date,
+    params.fromCity,
+    params.time,
+    params.timezone,
+    params.waitingTime,
+  ]);
 
-  const { data, isLoading, isError, isSuccess } = useDestinationsQuery(queryParams);
+  const { data, isLoading, isError, isSuccess } =
+    useDestinationsQuery(queryParams);
   const hasHandledFailureRef = useRef(false);
 
   useEffect(() => {
@@ -77,7 +87,8 @@ export default function MapViewScreen() {
   }, [isSuccess, connections]);
 
   useEffect(() => {
-    if (!isSuccess || connections.length > 0 || hasHandledFailureRef.current) return;
+    if (!isSuccess || connections.length > 0 || hasHandledFailureRef.current)
+      return;
     hasHandledFailureRef.current = true;
     setIsLeavingScreen(true);
     requestAnimationFrame(() => {
@@ -113,7 +124,10 @@ export default function MapViewScreen() {
           connections={connections}
           selectedConnectionId={selectedConnectionId}
           onConnectionSelect={setSelectedConnectionId}
-          onPress={() => router.push("/destination-summary")}
+          onPress={(connection: ConnectionType) => {
+            queryClient.setQueryData(["selectedDestinationConnection"], connection);
+            router.push("/destination-summary");
+          }}
           isLoading={isLoading}
           emptyMessage={NO_CONNECTIONS_FOR_TIME}
         />

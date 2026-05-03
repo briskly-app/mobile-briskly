@@ -23,6 +23,7 @@ export interface StopType {
   thumbnailUrl?: ImageSource;
   suburb?: string;
   region?: string;
+  descriptionParagraphs?: string[];
 }
 
 export interface ConnectionType {

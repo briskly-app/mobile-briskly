@@ -16,7 +16,7 @@ import { ConnectionType } from "@/types/stop-type";
 
 interface Props {
   connection: ConnectionType;
-  onPress: () => void;
+  onPress: (connection: ConnectionType) => void;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -33,7 +33,7 @@ export default function DestinationCard({ connection, onPress, style }: Props) {
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={onPress}
+      onPress={() => onPress(connection)}
       style={[
         {
           shadowColor: "#000",
