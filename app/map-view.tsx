@@ -21,7 +21,14 @@ export default function MapViewScreen() {
     time?: string;
     timezone?: string;
     waitingTime?: string;
+    returnTarget?: string;
+    tripSlug?: string;
   }>();
+
+  const returnToTrip = params.returnTarget === "trip";
+  const tripSlugForReturn = params.tripSlug
+    ? String(params.tripSlug)
+    : "";
 
   const queryParams = useMemo(() => {
     if (
@@ -67,13 +74,20 @@ export default function MapViewScreen() {
       hasHandledFailureRef.current = true;
       setIsLeavingScreen(true);
       requestAnimationFrame(() => {
+        if (returnToTrip && tripSlugForReturn) {
+          router.replace({
+            pathname: "/trip-summary",
+            params: { tripSlug: tripSlugForReturn, notice: "server" },
+          });
+          return;
+        }
         router.replace({
           pathname: "/explore",
           params: { notice: "server" },
         });
       });
     }
-  }, [isError]);
+  }, [isError, returnToTrip, tripSlugForReturn]);
 
   const connections = data?.connections ?? [];
   const origin = data?.origin ?? null;
@@ -92,12 +106,19 @@ export default function MapViewScreen() {
     hasHandledFailureRef.current = true;
     setIsLeavingScreen(true);
     requestAnimationFrame(() => {
+      if (returnToTrip && tripSlugForReturn) {
+        router.replace({
+          pathname: "/trip-summary",
+          params: { tripSlug: tripSlugForReturn, notice: "empty" },
+        });
+        return;
+      }
       router.replace({
         pathname: "/explore",
         params: { notice: "empty" },
       });
     });
-  }, [isSuccess, connections.length]);
+  }, [isSuccess, connections.length, returnToTrip, tripSlugForReturn]);
 
   if (isLeavingScreen) {
     return <View className="flex-1 bg-black" />;

@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Text, View } from "react-native";
 
+import { PLACEHOLDER_IMAGE_SOURCE } from "@/constants/global";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { DestinationType } from "@/types/destination-type";
 
@@ -19,7 +20,8 @@ export default function DestinationCard({
   const { colors } = useAppTheme();
 
   const title = stayDays ? `${city} (${stayDays} days)` : city;
-  const hasDeparture = departureDate && departureTime;
+  const hasArrival = Boolean(arrivalDate && arrivalTime);
+  const hasDeparture = Boolean(departureDate && departureTime);
 
   return (
     <View
@@ -42,14 +44,16 @@ export default function DestinationCard({
           {title}
         </Text>
 
-        <View className="flex-row items-center gap-1.5 mb-0.5">
-          <Feather name="log-in" size={13} color={colors.foreground} />
-          <Text className="text-sm" style={{ color: colors.foreground }}>
-            {arrivalDate}
-            {"  "}
-            {arrivalTime}
-          </Text>
-        </View>
+        {hasArrival && (
+          <View className="flex-row items-center gap-1.5 mb-0.5">
+            <Feather name="log-in" size={13} color={colors.foreground} />
+            <Text className="text-sm" style={{ color: colors.foreground }}>
+              {arrivalDate}
+              {"  "}
+              {arrivalTime}
+            </Text>
+          </View>
+        )}
 
         {hasDeparture && (
           <View className="flex-row items-center gap-1.5">
@@ -64,7 +68,7 @@ export default function DestinationCard({
       </View>
 
       <Image
-        source={image}
+        source={image ?? PLACEHOLDER_IMAGE_SOURCE}
         style={{
           width: 180,
           height: "100%",

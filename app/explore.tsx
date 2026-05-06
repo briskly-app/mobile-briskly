@@ -19,6 +19,7 @@ import {
   NO_CONNECTIONS_FOR_TIME,
   SERVER_ERROR,
 } from "@/lib/constants/messages";
+import { clearActiveTripSlug } from "@/lib/storage/active-trip";
 import { LocationResultType } from "@/types/location-result-type";
 
 export default function ExploreScreen() {
@@ -63,6 +64,10 @@ export default function ExploreScreen() {
       },
     });
   };
+
+  useEffect(() => {
+    clearActiveTripSlug();
+  }, []);
 
   useEffect(() => {
     if (!notice || notice === lastNoticeRef.current) return;

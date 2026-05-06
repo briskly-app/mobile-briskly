@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import Animated from "react-native-reanimated";
 
 import RouteLine from "@/components/map-view/markers/route-line";
 import RouteNumberBadge from "@/components/map-view/markers/route-number-badge";
@@ -10,6 +11,7 @@ import MapLoader from "@/components/shared/map-loader";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { GeoCoord, useCameraBounds } from "@/hooks/use-camera-bounds";
 import { RouteDefinition, useRouteCache } from "@/hooks/use-route-cache";
+import { useSkeletonShimmer } from "@/hooks/use-skeleton-shimmer";
 import { DestinationType } from "@/types/destination-type";
 
 let MapboxModule: typeof import("@rnmapbox/maps") | null = null;
@@ -44,10 +46,14 @@ function buildLocationPins(destinations: DestinationType[]): LocationPin[] {
       });
     }
 
-    const dateShort = dest.arrivalDate.split(" ").slice(0, 2).join(" ");
+    const visitDate = dest.arrivalDate ?? dest.departureDate ?? "";
+    const visitTime = dest.arrivalTime ?? dest.departureTime ?? "";
+    if (!visitDate && !visitTime) return;
+
+    const dateShort = visitDate.split(" ").slice(0, 2).join(" ");
     map.get(key)!.visits.push({
       dateShort,
-      time: dest.arrivalTime,
+      time: visitTime,
       stayDays: dest.stayDays,
     });
   });
@@ -57,9 +63,22 @@ function buildLocationPins(destinations: DestinationType[]): LocationPin[] {
 
 interface Props {
   destinations: DestinationType[];
+  loading?: boolean;
 }
 
-export default function MapSummary({ destinations }: Props) {
+export default function MapSummary({ destinations, loading = false }: Props) {
+  if (loading) {
+    return <MapSummarySkeleton />;
+  }
+
+  return <MapSummaryContent destinations={destinations} />;
+}
+
+function MapSummaryContent({
+  destinations,
+}: {
+  destinations: DestinationType[];
+}) {
   const { isDark } = useAppTheme();
 
   const routes = useMemo<RouteDefinition[]>(
@@ -193,6 +212,21 @@ export default function MapSummary({ destinations }: Props) {
 
       {isLoading && <MapLoader />}
     </View>
+  );
+}
+
+function MapSummarySkeleton() {
+  const { colors } = useAppTheme();
+  const shimmerStyle = useSkeletonShimmer();
+
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        { backgroundColor: colors.border },
+        shimmerStyle,
+      ]}
+    />
   );
 }
 

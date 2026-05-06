@@ -22,6 +22,7 @@ type ApiStop = {
 
 type ApiConnection = {
   id?: string;
+  trip_id?: string;
   departure_date?: string;
   departure_time?: string;
   arrival_date?: string;
@@ -90,8 +91,12 @@ export function mapConnections(
   body: ApiDestinationsResponse,
 ): ConnectionType[] {
   const rows = Array.isArray(body.results) ? body.results : [];
+  const originTimezone = safeString(body.timezone) || undefined;
+
   return rows.map((row) => ({
     id: safeString(row.id),
+    gtfsTrip: safeString(row.trip_id),
+    originTimezone,
     departureDate: safeString(row.departure_date),
     departureTime: safeString(row.departure_time),
     arrivalDate: safeString(row.arrival_date),

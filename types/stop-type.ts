@@ -28,6 +28,8 @@ export interface StopType {
 
 export interface ConnectionType {
   id: string;
+  gtfsTrip?: string;
+  originTimezone?: string;
   departureDate: string;
   departureTime: string;
   arrivalDate: string;

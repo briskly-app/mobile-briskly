@@ -11,3 +11,9 @@ export function formatIsoDateToLong(dateIso: string): string {
   }).format(date);
 }
 
+export function normalizeTimeForSearch(value: string): string {
+  const t = value.trim();
+  const [h, m] = t.split(":");
+  if (h !== undefined && m !== undefined) return `${h}:${m}`;
+  return t;
+}

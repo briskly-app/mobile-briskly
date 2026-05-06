@@ -10,8 +10,6 @@ export const polandGermanyTrip: TripSummaryType = {
       id: "d1",
       city: "Wrocław",
       image: require("@/assets/images/mocks/wroclaw.png"),
-      arrivalDate: "3 May 2026",
-      arrivalTime: "12:17",
       departureDate: "3 May 2026",
       departureTime: "17:00",
       longitude: 17.0385,
