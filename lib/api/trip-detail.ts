@@ -1,7 +1,7 @@
 import { SERVER_ERROR } from "@/lib/constants/messages";
 import { TripSummaryType } from "@/types/trip-summary-type";
 
-import { getApiBaseUrl } from "./config";
+import { apiGetJson } from "./config";
 import {
   ApiTripConnection,
   buildTripSummary,
@@ -20,35 +20,14 @@ export interface TripSummaryPayload {
   connectionsCount: number;
 }
 
-function buildTripBase(): string {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new Error(SERVER_ERROR);
-  }
-  return base;
-}
-
-async function getJson(url: string, signal?: AbortSignal): Promise<unknown> {
-  const res = await fetch(url, {
-    method: "GET",
-    headers: { Accept: "application/json" },
-    signal,
-  });
-
-  if (!res.ok) {
-    throw new Error(SERVER_ERROR);
-  }
-
-  return res.json();
-}
-
 export async function fetchTripDetail(
   slug: string,
   signal?: AbortSignal,
 ): Promise<TripDetailType> {
-  const base = buildTripBase();
-  const url = `${base}/api/trips/${encodeURIComponent(slug)}/`;
-  const body = await getJson(url, signal);
+  const body = await apiGetJson(
+    `/api/trips/${encodeURIComponent(slug)}/`,
+    signal,
+  );
   const detail = mapApiTripDetail(body);
   if (!detail) {
     throw new Error(SERVER_ERROR);
@@ -60,9 +39,10 @@ export async function fetchTripConnections(
   slug: string,
   signal?: AbortSignal,
 ): Promise<ApiTripConnection[]> {
-  const base = buildTripBase();
-  const url = `${base}/api/trips/${encodeURIComponent(slug)}/connections/`;
-  const body = await getJson(url, signal);
+  const body = await apiGetJson(
+    `/api/trips/${encodeURIComponent(slug)}/connections/`,
+    signal,
+  );
   return mapApiTripConnections(body);
 }
 
@@ -70,9 +50,10 @@ export async function fetchTripNextLegSearchParams(
   slug: string,
   signal?: AbortSignal,
 ): Promise<TripNextLegSearchParams | null> {
-  const base = buildTripBase();
-  const url = `${base}/api/trips/${encodeURIComponent(slug)}/connections/`;
-  const body = await getJson(url, signal);
+  const body = await apiGetJson(
+    `/api/trips/${encodeURIComponent(slug)}/connections/`,
+    signal,
+  );
   return mapTripConnectionsToNextLegSearchParams(body);
 }
 

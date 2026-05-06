@@ -1,12 +1,13 @@
 import { SERVER_ERROR } from "@/lib/constants/messages";
 
-import { getApiBaseUrl } from "./config";
+import { apiGetJson, requireApiBaseUrl } from "./config";
+import {
+  buildTripsListPayload,
+  TripsListPayload,
+} from "./mappers/trips";
 
 export async function createTrip(signal?: AbortSignal): Promise<string> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new Error(SERVER_ERROR);
-  }
+  const base = requireApiBaseUrl();
 
   const res = await fetch(`${base}/api/trips/`, {
     method: "POST",
@@ -30,10 +31,7 @@ export async function patchTrip(
   slug: string,
   signal?: AbortSignal,
 ): Promise<void> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new Error(SERVER_ERROR);
-  }
+  const base = requireApiBaseUrl();
 
   const pathSlug = encodeURIComponent(slug);
   const res = await fetch(`${base}/api/trips/${pathSlug}/`, {
@@ -49,4 +47,11 @@ export async function patchTrip(
   if (!res.ok) {
     throw new Error(SERVER_ERROR);
   }
+}
+
+export async function fetchTrips(
+  signal?: AbortSignal,
+): Promise<TripsListPayload> {
+  const body = await apiGetJson("/api/trips/", signal);
+  return buildTripsListPayload(body);
 }

@@ -6,17 +6,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FooterStickyButton from "@/components/shared/footer-sticky-button";
 import Header from "@/components/shared/header";
 import TripsSection from "@/components/trips/trips-section";
+import { useTripsQuery } from "@/hooks/use-trips-query";
 import {
   TRIP_HAS_NO_CONNECTIONS,
   TRIP_LOAD_FAILED,
 } from "@/lib/constants/messages";
 import { clearActiveTripSlug } from "@/lib/storage/active-trip";
-import { pastTrips, upcomingTrips } from "@/mocks/trip-mocks";
+import { TripItemType } from "@/types/trip-item-type";
 
 export default function IndexScreen() {
   const { notice } = useLocalSearchParams<{ notice?: string }>();
   const lastNoticeRef = useRef<string | null>(null);
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
+
+  const tripsQuery = useTripsQuery();
+  const upcoming = tripsQuery.data?.upcoming ?? [];
+  const past = tripsQuery.data?.past ?? [];
+  const isLoadingTrips = tripsQuery.isPending;
 
   useEffect(() => {
     clearActiveTripSlug();
@@ -42,9 +48,24 @@ export default function IndexScreen() {
     return () => clearTimeout(id);
   }, [noticeMessage]);
 
-  if (upcomingTrips.length === 0 && pastTrips.length === 0) {
+  if (tripsQuery.isError) {
+    return <Redirect href="/explore?notice=server" />;
+  }
+
+  if (
+    tripsQuery.isSuccess &&
+    upcoming.length === 0 &&
+    past.length === 0
+  ) {
     return <Redirect href="/explore" />;
   }
+
+  const handleTripPress = (trip: TripItemType) => {
+    router.push({
+      pathname: "/trip-summary",
+      params: { tripSlug: trip.id },
+    });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-briskly-backgroundPrimary dark:bg-briskly-dark-backgroundPrimary">
@@ -61,13 +82,15 @@ export default function IndexScreen() {
       >
         <TripsSection
           title="Upcoming trips"
-          trips={upcomingTrips}
-          onTripPress={(trip) => console.log("Trip pressed:", trip.title)}
+          trips={upcoming}
+          loading={isLoadingTrips}
+          onTripPress={handleTripPress}
         />
         <TripsSection
           title="Past trips"
-          trips={pastTrips}
-          onTripPress={(trip) => console.log("Trip pressed:", trip.title)}
+          trips={past}
+          loading={isLoadingTrips}
+          onTripPress={handleTripPress}
         />
       </ScrollView>
 

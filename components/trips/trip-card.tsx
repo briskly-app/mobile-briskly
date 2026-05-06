@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { Text, TouchableOpacity, View } from "react-native";
 
+import { PLACEHOLDER_IMAGE_SOURCE } from "@/constants/global";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { TripItemType } from "@/types/trip-item-type";
 
@@ -27,7 +28,7 @@ export default function TripCard({ title, dateRange, image, onPress }: Props) {
       }}
     >
       <Image
-        source={image}
+        source={image ?? PLACEHOLDER_IMAGE_SOURCE}
         style={{ width: 72, height: 72, borderRadius: 12 }}
         contentFit="cover"
         cachePolicy="memory-disk"
