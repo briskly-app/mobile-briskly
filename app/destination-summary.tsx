@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 import DestinationInfo from "@/components/destination-summary/destination-info";
@@ -8,10 +8,21 @@ import HeroSection from "@/components/destination-summary/hero-section";
 import DarkmodeToggler from "@/components/shared/darkmode-toggler";
 import FooterStickyButton from "@/components/shared/footer-sticky-button";
 import SwipeToDismiss from "@/components/shared/swipe-to-dismiss";
+import TimelineList from "@/components/shared/timeline-list";
 import { useAddConnectionToTripMutation } from "@/hooks/use-add-connection-to-trip-mutation";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useTripConnectionsQuery } from "@/hooks/use-trip-connections-query";
 import { SERVER_ERROR } from "@/lib/constants/messages";
 import { formatDurationSeconds } from "@/lib/format/duration";
+import {
+  apiTripConnectionToLeg,
+  buildRouteTimeline,
+  computeTotalRouteDurationSeconds,
+  connectionToLeg,
+  sortLegsChronologically,
+  TripLeg,
+} from "@/lib/api/mappers/trip-route";
+import { getActiveTripSlug } from "@/lib/storage/active-trip";
 import { ConnectionType } from "@/types/stop-type";
 
 export default function DestinationSummaryScreen() {
@@ -19,6 +30,9 @@ export default function DestinationSummaryScreen() {
   const queryClient = useQueryClient();
   const addMutation = useAddConnectionToTripMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [slugChecked, setSlugChecked] = useState(false);
+
   const connection = queryClient.getQueryData<ConnectionType>([
     "selectedDestinationConnection",
   ]);
@@ -30,10 +44,34 @@ export default function DestinationSummaryScreen() {
   }, [connection]);
 
   useEffect(() => {
+    getActiveTripSlug().then((slug) => {
+      setActiveSlug(slug);
+      setSlugChecked(true);
+    });
+  }, []);
+
+  useEffect(() => {
     if (!errorMessage) return;
     const id = setTimeout(() => setErrorMessage(null), 6000);
     return () => clearTimeout(id);
   }, [errorMessage]);
+
+  const tripConnectionsQuery = useTripConnectionsQuery(activeSlug);
+
+  const legs = useMemo<TripLeg[]>(() => {
+    if (!connection) return [];
+    const currentLeg = connectionToLeg(connection);
+    const existingLegs = (tripConnectionsQuery.data ?? [])
+      .map(apiTripConnectionToLeg)
+      .filter((leg): leg is TripLeg => leg !== null);
+    return sortLegsChronologically([...existingLegs, currentLeg]);
+  }, [connection, tripConnectionsQuery.data]);
+
+  const timelineItems = useMemo(() => buildRouteTimeline(legs), [legs]);
+  const totalDurationSeconds = useMemo(
+    () => computeTotalRouteDurationSeconds(legs),
+    [legs],
+  );
 
   if (!connection) return null;
   if (!connection.destinationStop) return null;
@@ -42,6 +80,10 @@ export default function DestinationSummaryScreen() {
   const footerText = `Add ${connection.departureTime} (${formatDurationSeconds(
     connection.durationInTravel,
   )})`;
+
+  const isLoadingTimeline =
+    !slugChecked || (Boolean(activeSlug) && tripConnectionsQuery.isPending);
+  const showTimeline = !tripConnectionsQuery.isError;
 
   const handleAddToTrip = () => {
     setErrorMessage(null);
@@ -53,9 +95,7 @@ export default function DestinationSummaryScreen() {
         });
       },
       onError: (err) => {
-        setErrorMessage(
-          err instanceof Error ? err.message : SERVER_ERROR,
-        );
+        setErrorMessage(err instanceof Error ? err.message : SERVER_ERROR);
       },
     });
   };
@@ -80,14 +120,19 @@ export default function DestinationSummaryScreen() {
             descriptionParagraphs={destinationStop.descriptionParagraphs ?? []}
           />
 
-          {/* <WhatToSeeSection categories={destination.whatToSee} />
-
-          <TimelineList
-            title="Stops On The Way"
-            items={destination.stops}
-            trailingIcon="schedule"
-            trailingText={destination.totalDuration}
-          /> */}
+          {showTimeline && (
+            <TimelineList
+              title="Stops On The Way"
+              items={timelineItems}
+              trailingIcon="schedule"
+              trailingText={
+                totalDurationSeconds > 0
+                  ? formatDurationSeconds(totalDurationSeconds)
+                  : undefined
+              }
+              loading={isLoadingTimeline}
+            />
+          )}
         </View>
       </ScrollView>
 

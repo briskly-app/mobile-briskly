@@ -41,32 +41,4 @@ export const szczecinSummary: DestinationSummaryType = {
       ],
     },
   ],
-  stops: [
-    {
-      id: "st1",
-      icon: "train",
-      title: "Green Line: Zielona Góra Centrum → Poznań Centrum",
-      subtitle: "12:00 - 15:15 (3h 15m)",
-    },
-    {
-      id: "st2",
-      icon: "directions-walk",
-      title: "Zwiedzanie: Poznań Centrum",
-      subtitle: "15:15 - 16:00 (45m)",
-    },
-    {
-      id: "st3",
-      icon: "train",
-      title: "Yellow Line: Poznań Centrum → Szczecin Przystań",
-      subtitle: "16:00 - 17:08 (1h 8m)",
-    },
-    {
-      id: "st4",
-      icon: "check-circle",
-      title: "Przybycie: Szczecin Przystań",
-      subtitle: "17:08",
-    },
-  ],
-  totalDuration: "5h 8m",
-  departureTime: "17:08",
 };

@@ -1,7 +1,5 @@
 import { ImageSource } from "expo-image";
 
-import { TimelineItemType } from "@/components/shared/timeline-list";
-
 export interface AttractionItem {
   id: string;
   name: string;
@@ -23,7 +21,4 @@ export interface DestinationSummaryType {
   descriptionParagraphs: string[];
   image: ImageSource;
   whatToSee: WhatToSeeCategory[];
-  stops: TimelineItemType[];
-  totalDuration: string;
-  departureTime: string;
 }

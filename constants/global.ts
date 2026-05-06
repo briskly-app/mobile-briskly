@@ -9,3 +9,5 @@ export const SPRING = {
   stiffness: 120,
   mass: 1.0,
 };
+
+export const MINIMUM_VISITING_TIME = 15 * 60;
