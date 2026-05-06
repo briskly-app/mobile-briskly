@@ -7,8 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DestinationCarousel from "@/components/map-view/destination-carousel";
 import MapBackground from "@/components/map-view/map-background";
 import SearchBar from "@/components/map-view/search-bar";
+import SearchEditModal from "@/components/map-view/search-edit-modal";
 import { useDestinationsQuery } from "@/hooks/use-destinations-query";
+import { useTripNextLegSearchParamsQuery } from "@/hooks/use-trip-next-leg-search-params-query";
 import { NO_CONNECTIONS_FOR_TIME } from "@/lib/constants/messages";
+import { normalizeTimeForSearch } from "@/lib/format/date";
 import { ConnectionType } from "@/types/stop-type";
 
 export default function MapViewScreen() {
@@ -29,6 +32,14 @@ export default function MapViewScreen() {
   const tripSlugForReturn = params.tripSlug
     ? String(params.tripSlug)
     : "";
+
+  const nextLegQuery = useTripNextLegSearchParamsQuery(
+    tripSlugForReturn || null,
+  );
+  const minDate = nextLegQuery.data?.date;
+  const minTime = nextLegQuery.data?.time;
+
+  const [editorVisible, setEditorVisible] = useState(false);
 
   const queryParams = useMemo(() => {
     if (
@@ -124,6 +135,31 @@ export default function MapViewScreen() {
     return <View className="flex-1 bg-black" />;
   }
 
+  const currentDate = origin?.searchDate ?? params.date ?? "";
+  const currentTime = normalizeTimeForSearch(
+    origin?.searchTime ?? params.time ?? "",
+  );
+
+  const canOpenEditor = !tripSlugForReturn || nextLegQuery.isFetched;
+
+  const handleApplyEdit = ({
+    date,
+    time,
+  }: {
+    date: string;
+    time: string;
+  }) => {
+    let nextDate = date;
+    let nextTime = time;
+    if (minDate && nextDate < minDate) nextDate = minDate;
+    if (minTime && minDate && nextDate === minDate && nextTime < minTime) {
+      nextTime = minTime;
+    }
+    setEditorVisible(false);
+    if (nextDate === currentDate && nextTime === currentTime) return;
+    router.setParams({ date: nextDate, time: nextTime });
+  };
+
   return (
     <View className="flex-1">
       <MapBackground
@@ -134,8 +170,24 @@ export default function MapViewScreen() {
       />
 
       <View style={{ paddingTop: insets.top + 12 }}>
-        <SearchBar origin={origin} isLoading={isLoading} />
+        <SearchBar
+          origin={origin}
+          isLoading={isLoading}
+          onPress={
+            canOpenEditor ? () => setEditorVisible(true) : undefined
+          }
+        />
       </View>
+
+      <SearchEditModal
+        visible={editorVisible}
+        initialDate={currentDate}
+        initialTime={currentTime}
+        minDate={minDate}
+        minTime={minTime}
+        onApply={handleApplyEdit}
+        onCancel={() => setEditorVisible(false)}
+      />
 
       <View
         className="absolute left-0 right-0 bottom-0"

@@ -1,27 +1,46 @@
 import { Colors } from "@/constants/theme";
+import {
+  formatHm,
+  formatLongLocalTime,
+  parseHm,
+} from "@/lib/format/date";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Platform, Text, TouchableOpacity, View } from "react-native";
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+interface Props {
+  value: string;
+  onChange: (next: string) => void;
+  min?: string;
 }
 
-export default function DateInput() {
-  const [date, setDate] = useState(new Date());
+export default function TimeInput({ value, onChange, min }: Props) {
   const [showPicker, setShowPicker] = useState(false);
+
+  const time = useMemo(() => {
+    const { hours, minutes } = parseHm(value);
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  }, [value]);
+
+  const minimumDate = useMemo(() => {
+    if (!min) return undefined;
+    const { hours, minutes } = parseHm(min);
+    const d = new Date(time);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  }, [min, time]);
 
   const handleChange = (_event: DateTimePickerEvent, selected?: Date) => {
     if (Platform.OS !== "ios") setShowPicker(false);
-    if (selected) setDate(selected);
+    if (!selected) return;
+    let next = formatHm(selected);
+    if (min && next < min) next = min;
+    onChange(next);
   };
 
   return (
@@ -32,20 +51,22 @@ export default function DateInput() {
         activeOpacity={0.8}
       >
         <MaterialIcons
-          name="calendar-today"
+          name="access-time"
           size={20}
           color={Colors.briskly.secondary}
         />
         <Text className="flex-1 ml-3 text-briskly-secondary text-base">
-          {formatDate(date)}
+          {formatLongLocalTime(time)}
         </Text>
       </TouchableOpacity>
 
       {showPicker && (
         <DateTimePicker
-          value={date}
-          mode="date"
+          value={time}
+          mode="time"
+          is24Hour
           display={Platform.OS === "ios" ? "spinner" : "default"}
+          minimumDate={minimumDate}
           onChange={handleChange}
         />
       )}

@@ -38,11 +38,7 @@ export function formatTripDateRangeUs(
 }
 
 export function getTodayIsoLocal(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return formatLocalIsoDate(new Date());
 }
 
 export function normalizeTimeForSearch(value: string): string {
@@ -50,6 +46,49 @@ export function normalizeTimeForSearch(value: string): string {
   const [h, m] = t.split(":");
   if (h !== undefined && m !== undefined) return `${h}:${m}`;
   return t;
+}
+
+export function parseLocalIsoDate(value: string): Date {
+  const parsed = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+export function formatLocalIsoDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function parseHm(value: string): { hours: number; minutes: number } {
+  const [h, m] = value.split(":").map(Number);
+  return {
+    hours: Number.isFinite(h) ? h : 17,
+    minutes: Number.isFinite(m) ? m : 0,
+  };
+}
+
+export function formatHm(d: Date): string {
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+export function formatLongLocalDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function formatLongLocalTime(date: Date): string {
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 }
 
 function parseIsoDateUtc(dateIso: string): Date | null {

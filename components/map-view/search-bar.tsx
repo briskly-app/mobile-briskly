@@ -15,9 +15,14 @@ import { OriginCitySearchType } from "@/types/stop-type";
 interface Props {
   origin: OriginCitySearchType | null;
   isLoading?: boolean;
+  onPress?: () => void;
 }
 
-export default function SearchBar({ origin, isLoading = false }: Props) {
+export default function SearchBar({
+  origin,
+  isLoading = false,
+  onPress,
+}: Props) {
   const { colors } = useAppTheme();
   const pulse = useSharedValue(0.45);
 
@@ -71,6 +76,8 @@ export default function SearchBar({ origin, isLoading = false }: Props) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
+      onPress={onPress}
+      disabled={!onPress}
       className="mx-4 flex-row items-center gap-3 px-4 py-5 rounded-full"
       style={{
         backgroundColor: colors.surface,

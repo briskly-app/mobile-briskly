@@ -8,12 +8,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import DateInput from "@/components/explore/date-input";
 import DiscoverButton from "@/components/explore/discover-button";
 import HeaderText from "@/components/explore/header-text";
 import LocationInput from "@/components/explore/location-input";
-import TimeInput from "@/components/explore/time-input";
 import VideoBackground from "@/components/explore/video-background";
+import DateInput from "@/components/shared/date-input";
+import TimeInput from "@/components/shared/time-input";
 import { CENTERED_OFFSET, SPRING } from "@/constants/global";
 import {
   NO_CONNECTIONS_FOR_TIME,

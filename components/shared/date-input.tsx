@@ -1,30 +1,36 @@
 import { Colors } from "@/constants/theme";
+import {
+  formatLocalIsoDate,
+  formatLongLocalDate,
+  parseLocalIsoDate,
+} from "@/lib/format/date";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DateTimePicker, {
-    DateTimePickerEvent,
+  DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Platform, Text, TouchableOpacity, View } from "react-native";
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+interface Props {
+  value: string;
+  onChange: (next: string) => void;
+  min?: string;
 }
 
-export default function TimeInput() {
-  const [time, setTime] = useState(() => {
-    const d = new Date();
-    d.setHours(17, 0, 0, 0);
-    return d;
-  });
+export default function DateInput({ value, onChange, min }: Props) {
   const [showPicker, setShowPicker] = useState(false);
+  const date = useMemo(() => parseLocalIsoDate(value), [value]);
+  const minimumDate = useMemo(
+    () => (min ? parseLocalIsoDate(min) : undefined),
+    [min],
+  );
 
   const handleChange = (_event: DateTimePickerEvent, selected?: Date) => {
     if (Platform.OS !== "ios") setShowPicker(false);
-    if (selected) setTime(selected);
+    if (!selected) return;
+    let next = formatLocalIsoDate(selected);
+    if (min && next < min) next = min;
+    onChange(next);
   };
 
   return (
@@ -35,21 +41,21 @@ export default function TimeInput() {
         activeOpacity={0.8}
       >
         <MaterialIcons
-          name="access-time"
+          name="calendar-today"
           size={20}
           color={Colors.briskly.secondary}
         />
         <Text className="flex-1 ml-3 text-briskly-secondary text-base">
-          {formatTime(time)}
+          {formatLongLocalDate(date)}
         </Text>
       </TouchableOpacity>
 
       {showPicker && (
         <DateTimePicker
-          value={time}
-          mode="time"
-          is24Hour
+          value={date}
+          mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
+          minimumDate={minimumDate}
           onChange={handleChange}
         />
       )}
