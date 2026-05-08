@@ -1,3 +1,4 @@
+import { safeString } from "@/lib/format/mappers";
 import { LocationResultType } from "@/types/location-result-type";
 
 export type ApiCitySearchRow = {
@@ -12,17 +13,13 @@ export type ApiCitySearchResponse = {
   results?: ApiCitySearchRow[];
 };
 
-function str(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
 export function mapApiCitySearchRow(row: ApiCitySearchRow): LocationResultType {
-  const countryCode = str(row.city_country_code);
+  const countryCode = safeString(row.city_country_code);
   return {
     id: row.city_id != null ? String(row.city_id) : "",
-    name: str(row.city_name),
-    regionName: str(row.city_region_name),
-    countryName: str(row.city_country_name),
+    name: safeString(row.city_name),
+    regionName: safeString(row.city_region_name),
+    countryName: safeString(row.city_country_name),
     countryCode: countryCode || "XX",
   };
 }

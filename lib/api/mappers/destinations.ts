@@ -1,3 +1,4 @@
+import { safeNumber, safeString } from "@/lib/format/mappers";
 import {
   ConnectionType,
   OriginCitySearchType,
@@ -44,14 +45,6 @@ export type ApiDestinationsResponse = {
   timezone?: string;
   results?: ApiConnection[];
 };
-
-function safeString(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
-function safeNumber(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
 
 function mapStop(stop: ApiStop | undefined): StopType {
   return {

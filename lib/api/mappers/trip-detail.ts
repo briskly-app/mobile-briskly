@@ -1,5 +1,6 @@
 import { formatIsoDateToLong, normalizeTimeForSearch } from "@/lib/format/date";
 import { formatDurationSeconds } from "@/lib/format/duration";
+import { safeNumber, safeString } from "@/lib/format/mappers";
 import { DestinationType } from "@/types/destination-type";
 import { TripStatType, TripSummaryType } from "@/types/trip-summary-type";
 
@@ -55,14 +56,6 @@ export type ApiTripConnection = {
   duration_total?: number;
 };
 
-function safeTrim(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
-function safeNumber(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
 function isoDateToUtc(dateIso: string): Date | null {
   const [y, m, d] = dateIso.split("-").map(Number);
   if (!y || !m || !d) return null;
@@ -84,15 +77,15 @@ function trimTime(value: string): string {
 export function mapApiTripDetail(body: unknown): TripDetailType | null {
   if (!body || typeof body !== "object") return null;
   const raw = body as ApiTripDetail;
-  const slug = safeTrim(raw.slug);
+  const slug = safeString(raw.slug);
   if (!slug) return null;
 
   return {
     slug,
-    name: safeTrim(raw.name),
-    startDate: safeTrim(raw.start_date),
-    endDate: safeTrim(raw.end_date),
-    thumbnailUrl: safeTrim(raw.thumbnail_url) || undefined,
+    name: safeString(raw.name),
+    startDate: safeString(raw.start_date),
+    endDate: safeString(raw.end_date),
+    thumbnailUrl: safeString(raw.thumbnail_url) || undefined,
   };
 }
 
@@ -112,10 +105,10 @@ export function mapTripConnectionsToNextLegSearchParams(
 
   const last = connections[connections.length - 1];
   const dest = last.destination_stop;
-  const fromCity = safeTrim(dest?.city_id);
-  const date = safeTrim(last.arrival_date);
-  const time = trimTime(safeTrim(last.arrival_time));
-  const timezone = safeTrim(last.timezone ?? dest?.timezone);
+  const fromCity = safeString(dest?.city_id);
+  const date = safeString(last.arrival_date);
+  const time = trimTime(safeString(last.arrival_time));
+  const timezone = safeString(last.timezone ?? dest?.timezone);
 
   if (!fromCity || !date || !time || !timezone) return null;
   return { fromCity, date, time, timezone };
@@ -130,36 +123,36 @@ function buildDestinations(
 
   const first = connections[0];
   const startStop = first.starting_stop;
-  const startDepartureDateIso = safeTrim(first.departure_date);
+  const startDepartureDateIso = safeString(first.departure_date);
   const startDepartureDate = startDepartureDateIso
     ? formatIsoDateToLong(startDepartureDateIso)
     : "";
 
   destinations.push({
-    id: `dest-start-${safeTrim(startStop?.stop_id) || "0"}`,
-    city: safeTrim(startStop?.city_name) || safeTrim(startStop?.stop_name),
+    id: `dest-start-${safeString(startStop?.stop_id) || "0"}`,
+    city: safeString(startStop?.city_name) || safeString(startStop?.stop_name),
     image: startStop?.thumbnail_url
       ? { uri: startStop.thumbnail_url }
       : undefined,
     departureDate: startDepartureDate || undefined,
-    departureTime: trimTime(safeTrim(first.departure_time)) || undefined,
+    departureTime: trimTime(safeString(first.departure_time)) || undefined,
     longitude: safeNumber(startStop?.longitude),
     latitude: safeNumber(startStop?.latitude),
   });
 
   connections.forEach((conn, index) => {
     const dest = conn.destination_stop;
-    const arrivalIso = safeTrim(conn.arrival_date);
+    const arrivalIso = safeString(conn.arrival_date);
     const arrivalDate = arrivalIso ? formatIsoDateToLong(arrivalIso) : "";
-    const arrivalTime = trimTime(safeTrim(conn.arrival_time));
+    const arrivalTime = trimTime(safeString(conn.arrival_time));
 
     const next = connections[index + 1];
-    const nextDepartureIso = next ? safeTrim(next.departure_date) : "";
+    const nextDepartureIso = next ? safeString(next.departure_date) : "";
     const nextDepartureDate = nextDepartureIso
       ? formatIsoDateToLong(nextDepartureIso)
       : "";
     const nextDepartureTime = next
-      ? trimTime(safeTrim(next.departure_time))
+      ? trimTime(safeString(next.departure_time))
       : "";
 
     let stayDays: number | undefined;
@@ -171,8 +164,8 @@ function buildDestinations(
     }
 
     destinations.push({
-      id: `dest-${conn.id ?? index}-${safeTrim(dest?.stop_id) || index}`,
-      city: safeTrim(dest?.city_name) || safeTrim(dest?.stop_name),
+      id: `dest-${conn.id ?? index}-${safeString(dest?.stop_id) || index}`,
+      city: safeString(dest?.city_name) || safeString(dest?.stop_name),
       image: dest?.thumbnail_url ? { uri: dest.thumbnail_url } : undefined,
       arrivalDate: arrivalDate || undefined,
       arrivalTime: arrivalTime || undefined,
@@ -193,15 +186,15 @@ function buildStats(connections: ApiTripConnection[]): TripStatType[] {
     0,
   );
 
-  const tripStartIso = safeTrim(connections[0]?.departure_date);
-  const tripEndIso = safeTrim(
+  const tripStartIso = safeString(connections[0]?.departure_date);
+  const tripEndIso = safeString(
     connections[connections.length - 1]?.arrival_date,
   );
   const totalDurationSeconds = computeTotalTripSeconds(
     tripStartIso,
-    safeTrim(connections[0]?.departure_time),
+    safeString(connections[0]?.departure_time),
     tripEndIso,
-    safeTrim(connections[connections.length - 1]?.arrival_time),
+    safeString(connections[connections.length - 1]?.arrival_time),
   );
 
   const exploringSeconds = Math.max(

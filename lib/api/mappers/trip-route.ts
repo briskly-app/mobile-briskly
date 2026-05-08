@@ -2,6 +2,7 @@ import { TimelineItemType } from "@/components/shared/timeline-list";
 import { MINIMUM_VISITING_TIME } from "@/constants/global";
 import { normalizeTimeForSearch } from "@/lib/format/date";
 import { formatDurationSeconds } from "@/lib/format/duration";
+import { safeNumber, safeString } from "@/lib/format/mappers";
 import { ConnectionType } from "@/types/stop-type";
 
 import { ApiTripConnection } from "./trip-detail";
@@ -17,14 +18,6 @@ export interface TripLeg {
   durationInTravelSeconds: number;
 }
 
-function safeTrim(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
-function safeNumber(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
 function legTimestamp(dateIso: string, time: string): number | null {
   const [y, m, d] = dateIso.split("-").map(Number);
   if (!y || !m || !d) return null;
@@ -38,12 +31,13 @@ export function apiTripConnectionToLeg(
 ): TripLeg | null {
   const start = conn.starting_stop;
   const dest = conn.destination_stop;
-  const startCity = safeTrim(start?.city_name) || safeTrim(start?.stop_name);
-  const destCity = safeTrim(dest?.city_name) || safeTrim(dest?.stop_name);
-  const departureDate = safeTrim(conn.departure_date);
-  const arrivalDate = safeTrim(conn.arrival_date);
-  const departureTime = normalizeTimeForSearch(safeTrim(conn.departure_time));
-  const arrivalTime = normalizeTimeForSearch(safeTrim(conn.arrival_time));
+  const startCity =
+    safeString(start?.city_name) || safeString(start?.stop_name);
+  const destCity = safeString(dest?.city_name) || safeString(dest?.stop_name);
+  const departureDate = safeString(conn.departure_date);
+  const arrivalDate = safeString(conn.arrival_date);
+  const departureTime = normalizeTimeForSearch(safeString(conn.departure_time));
+  const arrivalTime = normalizeTimeForSearch(safeString(conn.arrival_time));
 
   if (
     !startCity ||

@@ -1,6 +1,4 @@
-import { SERVER_ERROR } from "@/lib/constants/messages";
-
-import { getApiBaseUrl } from "./config";
+import { apiPostJson } from "./config";
 
 export type CreateUserConnectionBody = {
   user_trip: string;
@@ -21,22 +19,5 @@ export async function createUserConnection(
   payload: CreateUserConnectionBody,
   signal?: AbortSignal,
 ): Promise<void> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new Error(SERVER_ERROR);
-  }
-
-  const res = await fetch(`${base}/api/connections/`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    signal,
-  });
-
-  if (!res.ok) {
-    throw new Error(SERVER_ERROR);
-  }
+  await apiPostJson("/api/connections/", payload, signal);
 }

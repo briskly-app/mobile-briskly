@@ -1,7 +1,6 @@
-import { SERVER_ERROR } from "@/lib/constants/messages";
 import { ConnectionType, OriginCitySearchType } from "@/types/stop-type";
 
-import { getApiBaseUrl } from "./config";
+import { apiGetJsonFromUrl } from "./config";
 import {
   ApiDestinationsResponse,
   mapConnections,
@@ -25,11 +24,6 @@ export async function fetchDestinations(
   params: DestinationsQueryParams,
   signal?: AbortSignal,
 ): Promise<DestinationsPayload> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new Error(SERVER_ERROR);
-  }
-
   const query = new URLSearchParams({
     from_city: params.fromCity,
     date: params.date,
@@ -38,31 +32,13 @@ export async function fetchDestinations(
     waitingTime: params.waitingTime,
   });
 
-  const url = `${base}/api/destinations/?${query.toString()}`;
+  const body = (await apiGetJsonFromUrl(
+    (base) => `${base}/api/destinations/?${query.toString()}`,
+    signal,
+  )) as ApiDestinationsResponse;
 
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      signal,
-    });
-
-    if (!res.ok) {
-      throw new Error(SERVER_ERROR);
-    }
-
-    const body: unknown = await res.json();
-    const mapped = body as ApiDestinationsResponse;
-
-    return {
-      origin: mapOriginCitySearch(mapped),
-      connections: mapConnections(mapped),
-    };
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw err;
-    }
-    throw new Error(SERVER_ERROR);
-  }
+  return {
+    origin: mapOriginCitySearch(body),
+    connections: mapConnections(body),
+  };
 }
-
