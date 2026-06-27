@@ -12,7 +12,7 @@ Once a destination is selected, it is added to the itinerary and becomes the new
 
 You can select the city, date, and time to initiate the algorithm and your starting point
 
-<img width="284" height="583" alt="image" src="https://github.com/user-attachments/assets/224d4a16-4ad8-4889-ba91-63322f71d0c1" />
+<img width="1036" height="547" alt="image" src="https://github.com/user-attachments/assets/35e76c44-35d6-4ef4-95ef-8d91c98e6d22" />
 
 Next you can select best location on mapbox map
 
